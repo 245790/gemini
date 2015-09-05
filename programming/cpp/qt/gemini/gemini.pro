@@ -13,6 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        userinterface.cpp
+        userinterface.cpp \
+    cell.cpp \
+    grid.cpp
 
-HEADERS  += userinterface.h
+HEADERS  += userinterface.h \
+    cell.h \
+    grid.h
