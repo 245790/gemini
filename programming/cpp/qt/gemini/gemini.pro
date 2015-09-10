@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,8 +16,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         userinterface.cpp \
     cell.cpp \
-    grid.cpp
+    grid.cpp \
+    gridpainter.cpp
 
 HEADERS  += userinterface.h \
     cell.h \
-    grid.h
+    grid.h \
+    gridpainter.h

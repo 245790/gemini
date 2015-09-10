@@ -23,7 +23,7 @@ int Grid::findNeighbours(int x, int y)
 
 Grid::Grid()
 {
-
+    initEmptyGrid(80, 25);
 }
 
 void Grid::initEmptyGrid(int width, int height)
