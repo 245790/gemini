@@ -28,7 +28,7 @@ UserInterface::UserInterface()
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), gridPainter, SLOT(animate()));
-    timer->start(50);
+    timer->start(100);
 }
 
 void UserInterface::createActions()

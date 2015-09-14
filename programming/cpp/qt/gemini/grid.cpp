@@ -23,7 +23,7 @@ int Grid::findNeighbours(int x, int y)
 
 Grid::Grid()
 {
-    initEmptyGrid(80, 25);
+    initRandom(64, 32);
 }
 
 void Grid::initEmptyGrid(int width, int height)
@@ -86,6 +86,11 @@ void Grid::initRandom(int width, int height)
          }
       }
    }
+}
+
+bool Grid::isAlive(int heightIndex, int widthIndex)
+{
+    return grd[widthIndex][heightIndex].getStatus() == ALIVE;
 }
 
 int Grid::getWidth()

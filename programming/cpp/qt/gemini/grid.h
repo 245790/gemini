@@ -19,6 +19,7 @@ public:
     void initEmptyGrid(int width, int height);
     void initGridFromArray(QVector<QVector<int> > initialArray);
     void initRandom(int width, int height);
+    bool isAlive(int heightIndex, int widthIndex);
     int getWidth();
     int getHeight();
     void update();
