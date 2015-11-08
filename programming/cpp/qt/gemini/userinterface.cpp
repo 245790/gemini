@@ -1,5 +1,7 @@
-#include "userinterface.h"
+#include <QString>
 #include <QtWidgets>
+
+#include "userinterface.h"
 
 UserInterface::UserInterface()
 {
@@ -12,9 +14,20 @@ UserInterface::UserInterface()
     stopButton = new QPushButton(tr("Stop"));
     connect(stopButton, SIGNAL(pressed()), gridPainter, SLOT(stopPressed()));
 
+    mode = new QListWidget;
+    mode->setViewMode(QListView::IconMode);
+    mode->setIconSize(QSize(30, 30));
+    mode->setMovement(QListView::Static);
+    mode->setMaximumWidth(128);
+    mode->setSpacing(12);
+    createIcons();
+
+    painterAndMode = new QHBoxLayout;
+    painterAndMode->addWidget(mode);
+    painterAndMode->addWidget(gridPainter);
+
     mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(5);
-    mainLayout->addWidget(gridPainter);
+    mainLayout->addLayout(painterAndMode);
     mainLayout->addWidget(stopButton);
 
     all->setLayout(mainLayout);
@@ -33,6 +46,9 @@ UserInterface::UserInterface()
 
 void UserInterface::createActions()
 {
+    openFileAct = new QAction(tr("&Open file"), this);
+    connect(openFileAct, SIGNAL(triggered()), this, SLOT(openFile()));
+
     setCellColorAct = new QAction(tr("Set &cell color"), this);
     connect(setCellColorAct, SIGNAL(triggered()), this, SLOT(setCellColor()));
 
@@ -44,14 +60,37 @@ void UserInterface::createMenus()
 {
     menuBar = new QMenuBar();
 
+    fileMenu = new QMenu(tr("&File"));
+    fileMenu->addAction(openFileAct);
+
     viewMenu = new QMenu(tr("&View"));
     viewMenu->addAction(setCellColorAct);
     viewMenu->addAction(setSpaceColorAct);
     viewMenu->addSeparator();
 
+    menuBar->addMenu(fileMenu);
     menuBar->addMenu(viewMenu);
 
     setMenuBar(menuBar);
+}
+
+void UserInterface::createIcons()
+{
+    drawing = new QListWidgetItem(mode);
+    drawing->setText(tr("Drawing"));
+    drawing->setTextAlignment(Qt::AlignHCenter);
+    drawing->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+    moving = new QListWidgetItem(mode);
+    moving->setText(tr("Moving"));
+    moving->setTextAlignment(Qt::AlignHCenter);
+    moving->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+
+
+    connect(mode,
+            SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+            this, SLOT(changeMode(QListWidgetItem*,QListWidgetItem*)));
+
 }
 
 void UserInterface::setCellColor()
@@ -59,6 +98,7 @@ void UserInterface::setCellColor()
     gridPainter->setCellColor(QColorDialog::getColor(Qt::green,
                                                     this,
                                                     "Select cell color"));
+    gridPainter->update();
 }
 
 void UserInterface::setSpaceColor()
@@ -66,6 +106,32 @@ void UserInterface::setSpaceColor()
     gridPainter->setSpaceColor(QColorDialog::getColor(Qt::white,
                                                     this,
                                                     "Select space color"));
+    gridPainter->update();
+}
+void UserInterface::openFile()
+{
+    gridPainter->parsePlainText(
+                QFileDialog::getOpenFileName(this,
+                                             tr("Open file"),
+                                             tr("All Files (*);;Text Files (*.txt)")));
+    gridPainter->update();
+}
+
+void UserInterface::changeMode(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    if (!current)
+        current = previous;
+
+    switch(mode->row(current))
+    {
+    case 0:
+        gridPainter->setMouseMode(DRAWING);
+    break;
+
+    case 1:
+        gridPainter->setMouseMode(MOVING);
+    break;
+    }
 }
 
 UserInterface::~UserInterface()

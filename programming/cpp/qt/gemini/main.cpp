@@ -1,5 +1,6 @@
-#include "userinterface.h"
 #include <QApplication>
+
+#include "userinterface.h"
 
 int main(int argc, char *argv[])
 {

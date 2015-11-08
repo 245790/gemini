@@ -25,4 +25,3 @@ public:
 };
 
 #endif // CELL_H
-

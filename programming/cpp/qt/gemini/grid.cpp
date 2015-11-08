@@ -23,7 +23,7 @@ int Grid::findNeighbours(int x, int y)
 
 Grid::Grid()
 {
-    initRandom(64, 32);
+    initEmptyGrid(80, 25);
 }
 
 void Grid::initEmptyGrid(int width, int height)
@@ -46,31 +46,24 @@ void Grid::initEmptyGrid(int width, int height)
    }
 }
 
-void Grid::initGridFromArray(QVector<QVector<int> > initialArray)
+void Grid::initGridFromArray(const QVector<QVector<int> > &initialArray)
 {
-   this->height = initialArray.size();
-   this->width = initialArray[0].size();
+    initEmptyGrid(initialArray.size(), initialArray[0].size());
 
-   grd.resize(height);
-   for(int i = 0; i < height; i++)
-   {
-      grd[i].resize(width);
-   }
-
-   for(int i = 0; i < height; i++)
-   {
-      for(int j = 0; j < width; j++)
-      {
-         if(initialArray[i][j] == 0)
-         {
-             grd[i][j].setStatus(DEAD);
-         }
-         else
-         {
-             grd[i][j].setStatus(ALIVE);
-         }
-      }
-   }
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            if(initialArray[i][j] == 0)
+            {
+                grd[i][j].setStatus(DEAD);
+            }
+            else
+            {
+                grd[i][j].setStatus(ALIVE);
+            }
+        }
+    }
 }
 
 void Grid::initRandom(int width, int height)
@@ -90,7 +83,12 @@ void Grid::initRandom(int width, int height)
 
 bool Grid::isAlive(int heightIndex, int widthIndex)
 {
-    return grd[widthIndex][heightIndex].getStatus() == ALIVE;
+    return grd[heightIndex][widthIndex].getStatus() == ALIVE;
+}
+
+void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
+{
+    grd[heightIndex][widthIndex].setStatus(isAlive ? ALIVE : DEAD);
 }
 
 int Grid::getWidth()

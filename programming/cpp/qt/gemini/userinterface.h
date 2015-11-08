@@ -1,16 +1,20 @@
-#ifndef USERINTERFACE_H
+ #ifndef USERINTERFACE_H
 #define USERINTERFACE_H
 
-#include "gridpainter.h"
 #include <QMainWindow>
+
+#include "gridpainter.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QActionGroup;
 class QLabel;
+class QListWidget;
+class QListWidgetItem;
 class QMenu;
 class QMenuBar;
 class QVBoxLayout;
+class QHBoxLayout;
 class QPushButton;
 class QTimer;
 class QWidget;
@@ -23,20 +27,29 @@ class UserInterface : public QMainWindow
 private slots:
     void setCellColor();
     void setSpaceColor();
+    void openFile();
+    void changeMode(QListWidgetItem *current, QListWidgetItem *previous);
 
 private:
     void createActions();
     void createMenus();
+    void createIcons();
 
+    QWidget *all;
     GridPainter *gridPainter;
     QPushButton *stopButton;
     QMenu *viewMenu;
+    QMenu *fileMenu;
     QMenuBar *menuBar;
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
+    QAction *openFileAct;
     QTimer *timer;
     QVBoxLayout *mainLayout;
-    QWidget *all;
+    QListWidget *mode;
+    QListWidgetItem *drawing;
+    QListWidgetItem *moving;
+    QHBoxLayout *painterAndMode;
 
 public:
     UserInterface();

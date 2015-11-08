@@ -17,9 +17,10 @@ private:
 public:
     Grid();
     void initEmptyGrid(int width, int height);
-    void initGridFromArray(QVector<QVector<int> > initialArray);
+    void initGridFromArray(const QVector<QVector<int> > &initialArray);
     void initRandom(int width, int height);
     bool isAlive(int heightIndex, int widthIndex);
+    void setAlive(int heightIndex, int widthIndex, bool isAlive);
     int getWidth();
     int getHeight();
     void update();
