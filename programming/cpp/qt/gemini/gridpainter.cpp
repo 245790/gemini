@@ -9,7 +9,7 @@
 
 GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 {
-    stopped = false;
+    stopped = true;
 
     mousePressed = false;
 
@@ -104,7 +104,7 @@ void GridPainter::parsePlainText(const QString &fileName)
 
         int width = maxWidth;
 
-        grid.initEmptyGrid(width, height);
+        grid.initEmptyGrid(width * 2, height * 2);
 
         for(int i = 0; i < body.size(); i++)
         {
@@ -123,6 +123,8 @@ void GridPainter::parsePlainText(const QString &fileName)
         int width = 80;
         grid.initEmptyGrid(width, height);
     }
+    drawingPosition.setX(0);
+    drawingPosition.setY(0);
     fin.close();
 }
 
@@ -134,8 +136,6 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->fillRect(event->rect(), Qt::white);
     painter->setBrush(cellBrush);
     painter->setPen(cellPen);
-
-    painter->translate(drawingPosition);
 
     float screenRatio = event->rect().width() / event->rect().height();
     float gridRatio = grid.getWidth() / grid.getHeight();
@@ -153,8 +153,8 @@ void GridPainter::paintEvent(QPaintEvent *event)
         {
             cellWidth = event->rect().height() / grid.getHeight() * scale;
         }
-        painter->fillRect(QRectF(0,
-                                 0,
+        painter->fillRect(QRectF(drawingPosition.x(),
+                                 drawingPosition.y(),
                                  grid.getWidth() * cellWidth,
                                  grid.getHeight() * cellWidth),
                           spaceBrush);
@@ -170,30 +170,15 @@ void GridPainter::paintEvent(QPaintEvent *event)
         {
             cellWidth = event->rect().height() / grid.getHeight() * scale;
         }
-        painter->fillRect(QRectF(0,
-                                 0,
+        painter->fillRect(QRectF(drawingPosition.x() - grid.getWidth() * cellWidth / 2,
+                                 drawingPosition.y() - grid.getWidth() * cellWidth / 2,
                                  grid.getWidth() * cellWidth,
                                  grid.getHeight() * cellWidth),
                           spaceBrush);
     }
 
-    int gridWidth = grid.getWidth();
-    int gridHeight = grid.getHeight();
-
     painter->save();
-    for(int i = 0; i < gridHeight; i++)
-    {
-        for(int j = 0; j < gridWidth; j++)
-        {
-            if(grid.isAlive(i, j))
-            {
-                painter->drawRect(QRectF(j * cellWidth,
-                                         i * cellWidth,
-                                         cellWidth,
-                                         cellWidth));
-            }
-        }
-    }
+    grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
     painter->restore();
 
     painter->end();

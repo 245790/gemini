@@ -1,25 +1,8 @@
-#include "grid.h"
+#include <iostream>
+#include <math.h>
+#include <qvector.h>
 
-int Grid::findNeighbours(int x, int y)
-{
-   int neighbours = 0;
-   for(int i = -1; i <= 1; i++)
-   {
-      for(int j = -1; j <= 1; j++)
-      {
-         if(i == 0 && j == 0)
-         {
-            continue;
-         }
-         if(grd[(x + i + height) % height][(y + j + width) % width].getStatus() == ALIVE ||
-            grd[(x + i + height) % height][(y + j + width) % width].getStatus() == WAS_ALIVE)
-         {
-            neighbours++;
-         }
-      }
-   }
-   return neighbours;
-}
+#include "grid.h"
 
 Grid::Grid()
 {
@@ -28,116 +11,88 @@ Grid::Grid()
 
 void Grid::initEmptyGrid(int width, int height)
 {
-   this->height = height;
-   this->width = width;
-
-   grd.resize(height);
-   for(int i = 0; i < height; i++)
-   {
-      grd[i].resize(width);
-   }
-
-   for(int i = 0; i < height; i++)
-   {
-      for(int j = 0; j < width; j++)
-      {
-         grd[i][j].setStatus(DEAD);
-      }
-   }
-}
-
-void Grid::initGridFromArray(const QVector<QVector<int> > &initialArray)
-{
-    initEmptyGrid(initialArray.size(), initialArray[0].size());
-
-    for(int i = 0; i < height; i++)
+    int maxDimension = width > height ? width : height;
+    int i = 0; // minimum power of 2 that exceeds maxDimension
+    do
     {
-        for(int j = 0; j < width; j++)
-        {
-            if(initialArray[i][j] == 0)
-            {
-                grd[i][j].setStatus(DEAD);
-            }
-            else
-            {
-                grd[i][j].setStatus(ALIVE);
-            }
-        }
+        i++;
     }
+    while(maxDimension > pow(2, i));
+    root = root->emptyTree(i);
+    generationCount = 0;
 }
 
 void Grid::initRandom(int width, int height)
 {
-   initEmptyGrid(width, height);
-   for(int i = 0; i < height; i++)
-   {
-      for(int j = 0; j < width; j++)
-      {
-         if(qrand() % 2 == 0)
-         {
-            grd[i][j].setStatus(ALIVE);
-         }
-      }
-   }
+    initEmptyGrid(width, height);
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            if(qrand() % 2 == 0)
+            {
+                root = root->setBit(i, j);
+            }
+        }
+    }
+    generationCount = 0;
 }
 
 bool Grid::isAlive(int heightIndex, int widthIndex)
 {
-    return grd[heightIndex][widthIndex].getStatus() == ALIVE;
+    return root->getBit(widthIndex, heightIndex) == 1 ? true : false;
 }
 
 void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 {
-    grd[heightIndex][widthIndex].setStatus(isAlive ? ALIVE : DEAD);
+    if(widthIndex > pow(2, root->getLevel()) || heightIndex > pow(2, root->getLevel()))
+    {
+        root = root->expandUniverse();
+    }
+    if(isAlive)
+    {
+        root = root->setBit(widthIndex, heightIndex);
+    }
+    else
+    {
+        root = root->unsetBit(widthIndex, heightIndex);
+    }
 }
 
 int Grid::getWidth()
 {
-   return width;
+    return pow(2, root->getLevel());
 }
 
 int Grid::getHeight()
 {
-   return height;
+    return pow(2, root->getLevel());
 }
 
+
+
+/**
+*   Run a step.  First, we make sure the root is large enough to
+*   include the entire next generation by checking that all border
+*   nodes in the 4x4 square three levels down are empty.  Then we
+*   simply invoke the next generation method of the node.
+*/
 void Grid::update()
 {
-   for(int i = 0; i < height; i++)
-   {
-      for(int j = 0; j < width; j++)
-      {
-         if(grd[i][j].getStatus() == DEAD &&
-            findNeighbours(i, j) == 3)
-         {
-            grd[i][j].setStatus(WAS_DEAD);
-         }
-         if(grd[i][j].getStatus() == ALIVE &&
-           (findNeighbours(i, j) < 2 || findNeighbours(i, j) > 3))
-         {
-            grd[i][j].setStatus(WAS_ALIVE);
-         }
-      }
-   }
-   for(int i = 0; i < height; i++)
-   {
-      for(int j = 0; j < width; j++)
-      {
-         if(grd[i][j].getStatus() == ALIVE)
-         {
-            grd[i][j].incrementAge();
-         }
-         if(grd[i][j].getStatus() == WAS_DEAD)
-         {
-            grd[i][j].setStatus(ALIVE);
-            grd[i][j].nullifyAge();
-         }
+    while(root->getLevel() < 3 ||
+          root->getnw()->getPopulation() != root->getnw()->getse()->getse()->getPopulation() ||
+          root->getne()->getPopulation() != root->getne()->getsw()->getsw()->getPopulation() ||
+          root->getsw()->getPopulation() != root->getsw()->getne()->getne()->getPopulation() ||
+          root->getse()->getPopulation() != root->getse()->getnw()->getnw()->getPopulation())
+    {
+        root = root->expandUniverse();
+    }
+    root = root->nextGeneration();
+    generationCount++;
+}
 
-         if(grd[i][j].getStatus() == WAS_ALIVE)
-         {
-            grd[i][j].setStatus(DEAD);
-            grd[i][j].nullifyAge();
-         }
-      }
-   }
+
+void Grid::draw(QPainter* painter, int x0, int y0, float width)
+{
+    root->recDraw(painter, x0, y0, width);
 }

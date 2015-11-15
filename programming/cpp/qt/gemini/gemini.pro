@@ -7,13 +7,12 @@
 QT       += core gui
 QT       += widgets
 
-CONFIG += c++11
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = gemini
 TEMPLATE = app
 
+CONFIG += c++11
 
 SOURCES += main.cpp\
         userinterface.cpp \
@@ -24,4 +23,5 @@ SOURCES += main.cpp\
 HEADERS  += userinterface.h \
     cell.h \
     grid.h \
-    gridpainter.h
+    gridpainter.h \
+    treenode.h

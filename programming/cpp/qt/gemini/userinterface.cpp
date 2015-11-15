@@ -99,6 +99,7 @@ void UserInterface::setCellColor()
                                                     this,
                                                     "Select cell color"));
     gridPainter->update();
+    gridPainter->stopPressed();
 }
 
 void UserInterface::setSpaceColor()
