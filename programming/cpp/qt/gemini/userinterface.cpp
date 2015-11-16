@@ -49,11 +49,15 @@ void UserInterface::createActions()
     openFileAct = new QAction(tr("&Open file"), this);
     connect(openFileAct, SIGNAL(triggered()), this, SLOT(openFile()));
 
+    initRandomAct = new QAction(tr("&Fill with random data"), this);
+    connect(initRandomAct, SIGNAL(triggered()), this, SLOT(initRandom()));
+
     setCellColorAct = new QAction(tr("Set &cell color"), this);
     connect(setCellColorAct, SIGNAL(triggered()), this, SLOT(setCellColor()));
 
     setSpaceColorAct = new QAction(tr("Set &space color"), this);
     connect(setSpaceColorAct, SIGNAL(triggered()), this, SLOT(setSpaceColor()));
+
 }
 
 void UserInterface::createMenus()
@@ -62,6 +66,7 @@ void UserInterface::createMenus()
 
     fileMenu = new QMenu(tr("&File"));
     fileMenu->addAction(openFileAct);
+    fileMenu->addAction(initRandomAct);
 
     viewMenu = new QMenu(tr("&View"));
     viewMenu->addAction(setCellColorAct);
@@ -115,6 +120,25 @@ void UserInterface::openFile()
                 QFileDialog::getOpenFileName(this,
                                              tr("Open file"),
                                              tr("All Files (*);;Text Files (*.txt)")));
+    gridPainter->update();
+}
+
+void UserInterface::initRandom()
+{
+    gridPainter->initRandom(QInputDialog::getInt(this,
+                                                 tr("Enter width"),
+                                                 tr("Enter width: "),
+                                                 25,
+                                                 5,
+                                                 1000000,
+                                                 1),
+                            QInputDialog::getInt(this,
+                                                 tr("Enter height"),
+                                                 tr("Enter height: "),
+                                                 25,
+                                                 5,
+                                                 1000000,
+                                                 1));
     gridPainter->update();
 }
 

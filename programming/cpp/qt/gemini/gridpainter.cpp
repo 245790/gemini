@@ -128,6 +128,12 @@ void GridPainter::parsePlainText(const QString &fileName)
     fin.close();
 }
 
+void GridPainter::initRandom(int width, int height)
+{
+    grid.initRandom(width, height);
+}
+
+
 void GridPainter::paintEvent(QPaintEvent *event)
 {
     QPainter *painter = new QPainter;
@@ -137,45 +143,11 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->setBrush(cellBrush);
     painter->setPen(cellPen);
 
-    float screenRatio = event->rect().width() / event->rect().height();
-    float gridRatio = grid.getWidth() / grid.getHeight();
+    cellWidth = 4 * scale;
 
-    float cellWidth = 0;
+    int width = grid.getWidth() * cellWidth;
 
-    if(screenRatio > gridRatio)
-    {
-        cellWidth = event->rect().height() / grid.getHeight() * scale;
-        if(grid.getWidth() * cellWidth > event->rect().width())
-        {
-            cellWidth = event->rect().width() / grid.getWidth() * scale;
-        }
-        if(grid.getHeight() * cellWidth > event->rect().height())
-        {
-            cellWidth = event->rect().height() / grid.getHeight() * scale;
-        }
-        painter->fillRect(QRectF(drawingPosition.x(),
-                                 drawingPosition.y(),
-                                 grid.getWidth() * cellWidth,
-                                 grid.getHeight() * cellWidth),
-                          spaceBrush);
-    }
-    else
-    {
-        cellWidth = event->rect().width() / grid.getWidth() * scale;
-        if(grid.getWidth() * cellWidth > event->rect().width())
-        {
-            cellWidth = event->rect().width() / grid.getWidth() * scale;
-        }
-        if(grid.getHeight() * cellWidth > event->rect().height())
-        {
-            cellWidth = event->rect().height() / grid.getHeight() * scale;
-        }
-        painter->fillRect(QRectF(drawingPosition.x() - grid.getWidth() * cellWidth / 2,
-                                 drawingPosition.y() - grid.getWidth() * cellWidth / 2,
-                                 grid.getWidth() * cellWidth,
-                                 grid.getHeight() * cellWidth),
-                          spaceBrush);
-    }
+    painter->fillRect(drawingPosition.x() - width / 2, drawingPosition.y() - width / 2, width, width, spaceBrush);
 
     painter->save();
     grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
@@ -200,7 +172,7 @@ void GridPainter::wheelEvent(QWheelEvent *event)
 
             if (event->orientation() == Qt::Vertical)
             {
-                scale *= 1.2;
+                scale *= 1.1;
             }
             update();
         }
@@ -210,7 +182,7 @@ void GridPainter::wheelEvent(QWheelEvent *event)
             {
                 if (event->orientation() == Qt::Vertical)
                 {
-                    scale /= 1.2;
+                    scale /= 1.1;
                 }
             }
             update();

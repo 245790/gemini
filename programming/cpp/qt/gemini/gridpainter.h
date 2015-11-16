@@ -40,6 +40,8 @@ private:
 
     float scale;
 
+    float cellWidth;
+
     QPoint drawingPosition;
     QPoint mousePosition;
 
@@ -54,6 +56,7 @@ public:
     void initEmptyGrid(int width, int height);
     void parsePlainText(const QString &fileName);
     void setMouseMode(MOUSE_MODE m);
+    void initRandom(int width, int height);
 
 public slots:
     void animate();

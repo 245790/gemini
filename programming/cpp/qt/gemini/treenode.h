@@ -408,37 +408,66 @@ public:
         }
     }
 
-    void recDraw(QPainter* painter, int x0, int y0, float width)
+    void recDraw(QPainter* painter, int x0, int y0, int width)
     {
-        if(this->level <= 2)
+        if(width / 4 > 0)
         {
-            unsigned short bv = this->bitView;
-            for(int i = 0; i < 16 && bv != 0; i++)
+            if(this->level <= 2)
             {
-                if(bv % 2 == 1)
+                unsigned short bv = this->bitView;
+                for(int i = 0; i < 16 && bv != 0; i++)
                 {
-                    painter->drawRect(x0 + (i % 4) * width / 4, y0 + (i / 4) * width / 4, width / 4, width / 4);
+                    if(bv % 2 == 1)
+                    {
+                        painter->drawRect(x0 + (i % 4) * width / 4, y0 + (i / 4) * width / 4, width / 4, width / 4);
+                    }
+                    bv /= 2;
                 }
-                bv /= 2;
+            }
+            else
+            {
+                if(nw->population != 0)
+                {
+                    nw->recDraw(painter, x0 - width / 4, y0 - width / 4, width / 2);
+                }
+                if(ne->population != 0)
+                {
+                    ne->recDraw(painter, x0 + width / 4, y0 - width / 4, width / 2);
+                }
+                if(sw->population != 0)
+                {
+                    sw->recDraw(painter, x0 - width / 4, y0 + width / 4, width / 2);
+                }
+                if(se->population != 0)
+                {
+                    se->recDraw(painter, x0 + width / 4, y0 + width / 4, width / 2);
+                }
+            }
+        }
+        else if(width / 2 > 0)
+        {
+            if(nw->population != 0)
+            {
+                painter->drawRect(x0 - width / 2, y0 - width / 2, 1, 1);
+            }
+            if(ne->population != 0)
+            {
+                painter->drawRect(x0 + width / 2, y0 - width / 2, 1, 1);
+            }
+            if(sw->population != 0)
+            {
+                painter->drawRect(x0 - width / 2, y0 + width / 2, 1, 1);
+            }
+            if(se->population != 0)
+            {
+                painter->drawRect(x0 + width / 2, y0 + width / 2, 1, 1);
             }
         }
         else
         {
-            if(nw->population != 0)
+            if(this->population != 0)
             {
-                nw->recDraw(painter, x0 - width / 4, y0 - width / 4, width / 2);
-            }
-            if(ne->population != 0)
-            {
-                ne->recDraw(painter, x0 + width / 4, y0 - width / 4, width / 2);
-            }
-            if(sw->population != 0)
-            {
-                sw->recDraw(painter, x0 - width / 4, y0 + width / 4, width / 2);
-            }
-            if(se->population != 0)
-            {
-                se->recDraw(painter, x0 + width / 4, y0 + width / 4, width / 2);
+                painter->drawRect(x0, y0, width, width);
             }
         }
     }

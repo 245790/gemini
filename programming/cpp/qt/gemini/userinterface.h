@@ -28,6 +28,7 @@ private slots:
     void setCellColor();
     void setSpaceColor();
     void openFile();
+    void initRandom();
     void changeMode(QListWidgetItem *current, QListWidgetItem *previous);
 
 private:
@@ -44,6 +45,7 @@ private:
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
     QAction *openFileAct;
+    QAction *initRandomAct;
     QTimer *timer;
     QVBoxLayout *mainLayout;
     QListWidget *mode;

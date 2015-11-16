@@ -24,13 +24,17 @@ void Grid::initEmptyGrid(int width, int height)
 
 void Grid::initRandom(int width, int height)
 {
-    initEmptyGrid(width, height);
+    //initEmptyGrid(width, height);
     for(int i = 0; i < height; i++)
     {
         for(int j = 0; j < width; j++)
         {
             if(qrand() % 2 == 0)
             {
+                while(i >= getWidth() / 2 || j >= getWidth() / 2)
+                {
+                    root = root->expandUniverse();
+                }
                 root = root->setBit(i, j);
             }
         }
@@ -61,12 +65,12 @@ void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 
 int Grid::getWidth()
 {
-    return pow(2, root->getLevel());
+    return 1 << root->getLevel();
 }
 
 int Grid::getHeight()
 {
-    return pow(2, root->getLevel());
+    return 1 << root->getLevel();
 }
 
 
