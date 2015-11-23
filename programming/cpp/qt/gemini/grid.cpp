@@ -42,6 +42,12 @@ void Grid::initRandom(int width, int height)
     generationCount = 0;
 }
 
+void Grid::clear()
+{
+    root = root->emptyTree(root->getLevel());
+    generationCount = 0;
+}
+
 bool Grid::isAlive(int heightIndex, int widthIndex)
 {
     return root->getBit(widthIndex, heightIndex) == 1 ? true : false;
@@ -49,7 +55,8 @@ bool Grid::isAlive(int heightIndex, int widthIndex)
 
 void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 {
-    if(widthIndex > pow(2, root->getLevel()) || heightIndex > pow(2, root->getLevel()))
+    // If an index does not fit into grid
+    while(widthIndex > 1 << root->getLevel() || heightIndex > 1 << root->getLevel())
     {
         root = root->expandUniverse();
     }
@@ -73,8 +80,6 @@ int Grid::getHeight()
     return 1 << root->getLevel();
 }
 
-
-
 /**
 *   Run a step.  First, we make sure the root is large enough to
 *   include the entire next generation by checking that all border
@@ -95,8 +100,12 @@ void Grid::update()
     generationCount++;
 }
 
-
 void Grid::draw(QPainter* painter, int x0, int y0, float width)
 {
     root->recDraw(painter, x0, y0, width);
+}
+
+int Grid::getGeneration()
+{
+    return generationCount;
 }

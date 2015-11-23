@@ -30,6 +30,7 @@ private slots:
     void openFile();
     void initRandom();
     void changeMode(QListWidgetItem *current, QListWidgetItem *previous);
+    void stopButtonPressed();
 
 private:
     void createActions();
@@ -39,6 +40,7 @@ private:
     QWidget *all;
     GridPainter *gridPainter;
     QPushButton *stopButton;
+    QPushButton *clearButton;
     QMenu *viewMenu;
     QMenu *fileMenu;
     QMenuBar *menuBar;

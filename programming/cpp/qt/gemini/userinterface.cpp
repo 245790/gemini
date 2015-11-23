@@ -11,8 +11,11 @@ UserInterface::UserInterface()
 
     gridPainter = new GridPainter(this);
 
-    stopButton = new QPushButton(tr("Stop"));
-    connect(stopButton, SIGNAL(pressed()), gridPainter, SLOT(stopPressed()));
+    stopButton = new QPushButton(tr("Start"));
+    connect(stopButton, SIGNAL(pressed()), this, SLOT(stopButtonPressed()));
+
+    clearButton = new QPushButton(tr("Clear"));
+    connect(clearButton, SIGNAL(pressed()), gridPainter, SLOT(clear()));
 
     mode = new QListWidget;
     mode->setViewMode(QListView::IconMode);
@@ -29,6 +32,7 @@ UserInterface::UserInterface()
     mainLayout = new QVBoxLayout;
     mainLayout->addLayout(painterAndMode);
     mainLayout->addWidget(stopButton);
+    mainLayout->addWidget(clearButton);
 
     all->setLayout(mainLayout);
 
@@ -100,15 +104,22 @@ void UserInterface::createIcons()
 
 void UserInterface::setCellColor()
 {
+    if(!gridPainter->isStopped())
+    {
+        stopButtonPressed();
+    }
     gridPainter->setCellColor(QColorDialog::getColor(Qt::green,
                                                     this,
                                                     "Select cell color"));
     gridPainter->update();
-    gridPainter->stopPressed();
 }
 
 void UserInterface::setSpaceColor()
 {
+    if(!gridPainter->isStopped())
+    {
+        stopButtonPressed();
+    }
     gridPainter->setSpaceColor(QColorDialog::getColor(Qt::white,
                                                     this,
                                                     "Select space color"));
@@ -116,7 +127,11 @@ void UserInterface::setSpaceColor()
 }
 void UserInterface::openFile()
 {
-    gridPainter->parsePlainText(
+    if(!gridPainter->isStopped())
+    {
+        stopButtonPressed();
+    }
+    gridPainter->parseRLE(
                 QFileDialog::getOpenFileName(this,
                                              tr("Open file"),
                                              tr("All Files (*);;Text Files (*.txt)")));
@@ -156,6 +171,20 @@ void UserInterface::changeMode(QListWidgetItem *current, QListWidgetItem *previo
     case 1:
         gridPainter->setMouseMode(MOVING);
     break;
+    }
+}
+
+void UserInterface::stopButtonPressed()
+{
+    gridPainter->stopPressed();
+
+    if(gridPainter->isStopped())
+    {
+        stopButton->setText("Start");
+    }
+    else
+    {
+        stopButton->setText("Stop");
     }
 }
 

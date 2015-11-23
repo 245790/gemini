@@ -40,7 +40,7 @@ private:
 
     float scale;
 
-    float cellWidth;
+    int cellWidth;
 
     QPoint drawingPosition;
     QPoint mousePosition;
@@ -55,12 +55,15 @@ public:
     void setSpaceColor(QColor sc);
     void initEmptyGrid(int width, int height);
     void parsePlainText(const QString &fileName);
+    void parseRLE(const QString &fileName);
     void setMouseMode(MOUSE_MODE m);
     void initRandom(int width, int height);
+    bool isStopped();
 
 public slots:
     void animate();
     void stopPressed();
+    void clear();
 
 protected:
     void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
