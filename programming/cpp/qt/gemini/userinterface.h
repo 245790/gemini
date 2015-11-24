@@ -41,6 +41,8 @@ private:
     GridPainter *gridPainter;
     QPushButton *stopButton;
     QPushButton *clearButton;
+    QPushButton *rotateClockwiseButton;
+    QPushButton *rotateAntiClockwiseButton;
     QMenu *viewMenu;
     QMenu *fileMenu;
     QMenuBar *menuBar;

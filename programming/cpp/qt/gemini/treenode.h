@@ -444,6 +444,52 @@ public:
     }
 
     /**
+     * @brief Rotates a TreeNode clockwise
+     * @return this, rotated clockwise
+     */
+    TreeNode* rotateClockwise()
+    {
+        if(this->level == 0) // a leaf node
+        {
+            return this; // Then a rotation has no effect. We usially do not rotate leaf nodes
+        }
+        if(this->level == 1)
+        {
+            return create(sw, nw, se, ne);
+        }
+        else
+        {
+            return create(sw->rotateClockwise(),
+                          nw->rotateClockwise(),
+                          se->rotateClockwise(),
+                          ne->rotateClockwise());
+        }
+    }
+
+    /**
+     * @brief Rotates a TreeNode anticlockwise
+     * @return this, rotated anticlockwise
+     */
+    TreeNode* rotateAntiClockwise()
+    {
+        if(this->level == 0) // a leaf node
+        {
+            return this; // Then a rotation has no effect. We usially do not rotate leaf nodes
+        }
+        if(this->level == 1)
+        {
+            return create(ne, se, nw, sw);
+        }
+        else
+        {
+            return create(ne->rotateAntiClockwise(),
+                          se->rotateAntiClockwise(),
+                          nw->rotateAntiClockwise(),
+                          sw->rotateAntiClockwise());
+        }
+    }
+
+    /**
      * @brief Returns northwestern square of this tree
      * @return
      */

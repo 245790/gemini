@@ -3,7 +3,6 @@
 
 #include <QPainter>
 
-#include "cell.h"
 #include "treenode.h"
 
 using namespace std;
@@ -25,6 +24,8 @@ public:
     void update();
     void draw(QPainter* painter, int x0, int y0, float width);
     int getGeneration();
+    void rotateClockwise();
+    void rotateAntiClockwise();
 };
 
 #endif // GRID_H

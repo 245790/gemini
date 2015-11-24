@@ -17,6 +17,12 @@ UserInterface::UserInterface()
     clearButton = new QPushButton(tr("Clear"));
     connect(clearButton, SIGNAL(pressed()), gridPainter, SLOT(clear()));
 
+    rotateClockwiseButton = new QPushButton(tr("Rotate clockwise"));
+    connect(rotateClockwiseButton, SIGNAL(pressed()), gridPainter, SLOT(rotateClockwise()));
+
+    rotateAntiClockwiseButton = new QPushButton(tr("Rotate anti-clockwise"));
+    connect(rotateAntiClockwiseButton, SIGNAL(pressed()), gridPainter, SLOT(rotateAntiClockwise()));
+
     mode = new QListWidget;
     mode->setViewMode(QListView::IconMode);
     mode->setIconSize(QSize(30, 30));
@@ -33,6 +39,8 @@ UserInterface::UserInterface()
     mainLayout->addLayout(painterAndMode);
     mainLayout->addWidget(stopButton);
     mainLayout->addWidget(clearButton);
+    mainLayout->addWidget(rotateClockwiseButton);
+    mainLayout->addWidget(rotateAntiClockwiseButton);
 
     all->setLayout(mainLayout);
 

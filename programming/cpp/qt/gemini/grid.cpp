@@ -1,6 +1,4 @@
-#include <iostream>
 #include <math.h>
-#include <qvector.h>
 
 #include "grid.h"
 
@@ -108,4 +106,14 @@ void Grid::draw(QPainter* painter, int x0, int y0, float width)
 int Grid::getGeneration()
 {
     return generationCount;
+}
+
+void Grid::rotateClockwise()
+{
+    root = root->rotateClockwise();
+}
+
+void Grid::rotateAntiClockwise()
+{
+    root = root->rotateAntiClockwise();
 }

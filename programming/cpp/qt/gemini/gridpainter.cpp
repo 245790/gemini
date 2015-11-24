@@ -1,5 +1,6 @@
 #include <fstream>
 #include <string>
+#include <QPaintEvent>
 #include <QPainter>
 #include <QPaintEvent>
 #include <QtWidgets>
@@ -30,6 +31,8 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
     spaceBrush.setStyle(Qt::SolidPattern);
 
     mode = MOVING;
+
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 void GridPainter::animate()
@@ -49,6 +52,18 @@ void GridPainter::stopPressed()
 void GridPainter::clear()
 {
     grid.clear();
+    update();
+}
+
+void GridPainter::rotateClockwise()
+{
+    grid.rotateClockwise();
+    update();
+}
+
+void GridPainter::rotateAntiClockwise()
+{
+    grid.rotateAntiClockwise();
     update();
 }
 
@@ -215,6 +230,10 @@ void GridPainter::initRandom(int width, int height)
     drawingPosition.setY(4 * scale * grid.getHeight() / 2);
 }
 
+bool GridPainter::isStopped()
+{
+    return stopped;
+}
 
 void GridPainter::paintEvent(QPaintEvent *event)
 {
@@ -356,7 +375,16 @@ void GridPainter::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-bool GridPainter::isStopped()
+void GridPainter::keyPressEvent(QKeyEvent * event)
 {
-    return stopped;
+    switch(event->key())
+    {
+    case Qt::Key_M:
+        mode = MOVING;
+        break;
+    case Qt::Key_D:
+        mode = DRAWING;
+        break;
+    }
+    update();
 }

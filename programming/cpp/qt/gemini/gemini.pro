@@ -16,12 +16,10 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
         userinterface.cpp \
-    cell.cpp \
     grid.cpp \
     gridpainter.cpp
 
 HEADERS  += userinterface.h \
-    cell.h \
     grid.h \
     gridpainter.h \
     treenode.h
