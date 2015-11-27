@@ -23,6 +23,9 @@ UserInterface::UserInterface()
     rotateAntiClockwiseButton = new QPushButton(tr("Rotate anti-clockwise"));
     connect(rotateAntiClockwiseButton, SIGNAL(pressed()), gridPainter, SLOT(rotateAntiClockwise()));
 
+    nextGenerationButton = new QPushButton(tr("Next Generation"));
+    connect(nextGenerationButton, SIGNAL(pressed()), gridPainter, SLOT(nextGeneration()));
+
     mode = new QListWidget;
     mode->setViewMode(QListView::IconMode);
     mode->setIconSize(QSize(30, 30));
@@ -35,14 +38,18 @@ UserInterface::UserInterface()
     painterAndMode->addWidget(mode);
     painterAndMode->addWidget(gridPainter);
 
-    mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(painterAndMode);
+    mainLayout = new QHBoxLayout;
     mainLayout->addWidget(stopButton);
     mainLayout->addWidget(clearButton);
     mainLayout->addWidget(rotateClockwiseButton);
     mainLayout->addWidget(rotateAntiClockwiseButton);
+    mainLayout->addWidget(nextGenerationButton);
 
-    all->setLayout(mainLayout);
+    layout = new QVBoxLayout;
+    layout->addLayout(painterAndMode);
+    layout->addLayout(mainLayout);
+
+    all->setLayout(layout);
 
     createActions();
     createMenus();
@@ -141,8 +148,7 @@ void UserInterface::openFile()
     }
     gridPainter->parseRLE(
                 QFileDialog::getOpenFileName(this,
-                                             tr("Open file"),
-                                             tr("All Files (*);;Text Files (*.txt)")));
+                                             tr("Open file")));
     gridPainter->update();
 }
 

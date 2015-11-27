@@ -1,5 +1,6 @@
 #include <fstream>
 #include <string>
+#include <QApplication>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPaintEvent>
@@ -30,7 +31,7 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
     spaceBrush.setColor(QColor(250, 250, 250));
     spaceBrush.setStyle(Qt::SolidPattern);
 
-    mode = MOVING;
+    setMouseMode(MOVING);
 
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -65,6 +66,11 @@ void GridPainter::rotateAntiClockwise()
 {
     grid.rotateAntiClockwise();
     update();
+}
+
+void GridPainter::nextGeneration()
+{
+
 }
 
 void GridPainter::setCellColor(QColor cc)
@@ -253,11 +259,11 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->save();
     grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
     // draw a cell near a mouse
-//    painter->fillRect(this->mapFromGlobal(QCursor::pos()).x() - this->mapFromGlobal(QCursor::pos()).x() % cellWidth - 1,
-//                      this->mapFromGlobal(QCursor::pos()).y() - this->mapFromGlobal(QCursor::pos()).y() % cellWidth - 1,
-//                      cellWidth,
-//                      cellWidth,
-//                      Qt::red);
+    /*painter->fillRect((mousePosition.x() - drawingPosition.x()) / cellWidth,
+                      (mousePosition.y() - drawingPosition.y()) / cellWidth,
+                      cellWidth,
+                      cellWidth,
+                      Qt::red);*/
     painter->restore();
 
     painter->end();
@@ -266,6 +272,14 @@ void GridPainter::paintEvent(QPaintEvent *event)
 void GridPainter::setMouseMode(MOUSE_MODE m)
 {
     mode = m;
+   /* if(mode == MOVING)
+    {
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+    }
+    else
+    {
+        QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+    }*/
 }
 
 #ifndef QT_NO_WHEELEVENT
@@ -281,7 +295,7 @@ void GridPainter::wheelEvent(QWheelEvent *event)
 
             if (event->orientation() == Qt::Vertical)
             {
-                scale *= 1.1;
+                scale *= 1.1f;
             }
         }
         else
@@ -292,7 +306,7 @@ void GridPainter::wheelEvent(QWheelEvent *event)
                 {
                     if(scale / 1.1 > 0.25)
                     {
-                        scale /= 1.1;
+                        scale /= 1.1f;
                     }
                 }
             }
@@ -305,14 +319,13 @@ void GridPainter::wheelEvent(QWheelEvent *event)
 
 void GridPainter::mousePressEvent(QMouseEvent *event)
 {
+    mousePosition.setX(event->pos().x());
+    mousePosition.setY(event->pos().y());
     switch(mode)
     {
     case MOVING:
         if (event->button() == Qt::LeftButton)
         {
-            mousePosition.setX(event->pos().x());
-            mousePosition.setY(event->pos().y());
-            mousePressed = true;
             update();
         }
     break;
@@ -320,9 +333,8 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
         if (event->button() == Qt::LeftButton)
         {
             update();
-            // 2 is a magic number caused by some Qt errors
-            int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth - 2;
-            int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth - 2;
+            int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
+            int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
             // if the mouse is pressed, make the cell alive
             grid.setAlive(yPosition,
                           xPosition,
@@ -334,7 +346,8 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
 
 void GridPainter::mouseMoveEvent(QMouseEvent *event)
 {
-    update();
+    mousePosition.setX(event->pos().x());
+    mousePosition.setY(event->pos().y());
     switch(mode)
     {
     case MOVING:
@@ -344,13 +357,12 @@ void GridPainter::mouseMoveEvent(QMouseEvent *event)
             drawingPosition.setY(drawingPosition.y() + event->pos().y() - mousePosition.y());
             mousePosition.setX(event->pos().x());
             mousePosition.setY(event->pos().y());
-            update();
         }
     break;
     case DRAWING:
 
-        int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth - 2;
-        int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth - 2;
+        int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
+        int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
         // if the mouse is pressed, then actually make the cell alive
         if ((event->buttons() & Qt::LeftButton))
         {
@@ -358,19 +370,19 @@ void GridPainter::mouseMoveEvent(QMouseEvent *event)
                           xPosition,
                           true);
         }
-        update();
     break;
     }
+    update();
 }
 
 void GridPainter::mouseReleaseEvent(QMouseEvent *event)
 {
+    mousePosition.setX(event->pos().x());
+    mousePosition.setY(event->pos().y());
     if (event->buttons() & Qt::LeftButton)
     {
         drawingPosition.setX(drawingPosition.x() + event->pos().x() - mousePosition.x());
         drawingPosition.setY(drawingPosition.y() + event->pos().y() - mousePosition.y());
-        mousePosition.setX(event->pos().x());
-        mousePosition.setY(event->pos().y());
         update();
     }
 }
@@ -380,10 +392,10 @@ void GridPainter::keyPressEvent(QKeyEvent * event)
     switch(event->key())
     {
     case Qt::Key_M:
-        mode = MOVING;
+        setMouseMode(MOVING);
         break;
     case Qt::Key_D:
-        mode = DRAWING;
+        setMouseMode(DRAWING);
         break;
     }
     update();

@@ -66,6 +66,7 @@ public slots:
     void clear();
     void rotateClockwise();
     void rotateAntiClockwise();
+    void nextGeneration();
 
 protected:
     void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;

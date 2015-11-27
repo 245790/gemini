@@ -15,7 +15,7 @@ void Grid::initEmptyGrid(int width, int height)
     {
         i++;
     }
-    while(maxDimension > pow(2, i));
+    while(maxDimension > 1 << i);
     root = root->emptyTree(i);
     generationCount = 0;
 }

@@ -43,6 +43,7 @@ private:
     QPushButton *clearButton;
     QPushButton *rotateClockwiseButton;
     QPushButton *rotateAntiClockwiseButton;
+    QPushButton *nextGenerationButton;
     QMenu *viewMenu;
     QMenu *fileMenu;
     QMenuBar *menuBar;
@@ -51,7 +52,8 @@ private:
     QAction *openFileAct;
     QAction *initRandomAct;
     QTimer *timer;
-    QVBoxLayout *mainLayout;
+    QVBoxLayout *layout;
+    QHBoxLayout *mainLayout;
     QListWidget *mode;
     QListWidgetItem *drawing;
     QListWidgetItem *moving;
