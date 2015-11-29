@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>model.txt</file>
+        <file>glider.rle</file>
+        <file>point.rle</file>
+        <file>buckaroo.rle</file>
+        <file>bigblock.rle</file>
+        <file>block.rle</file>
+    </qresource>
+</RCC>

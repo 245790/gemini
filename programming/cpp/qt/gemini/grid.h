@@ -2,6 +2,7 @@
 #define GRID_H
 
 #include <QPainter>
+#include <QString>
 
 #include "treenode.h"
 
@@ -10,12 +11,14 @@ using namespace std;
 class Grid
 {
 private:
-    int generationCount;
+    int generationCount; // number of a generation passed since creation
     TreeNode* root;
 public:
     Grid();
     void initEmptyGrid(int width, int height);
     void initRandom(int width, int height);
+    void parsePlainText(const QString &fileName);
+    void parseRLE(const QString &fileName);
     void clear();
     bool isAlive(int heightIndex, int widthIndex);
     void setAlive(int heightIndex, int widthIndex, bool isAlive);

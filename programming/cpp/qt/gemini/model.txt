@@ -1,0 +1,9 @@
+Moving
+Drawing
+  :/point.rle
+  :/glider.rle
+  :/buckaroo.rle
+Erasing
+  :/point.rle
+  :/block.rle
+  :/bigblock.rle

@@ -24,6 +24,8 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 
     cellPen = QPen(cellColor);
     cellPen.setStyle(Qt::NoPen);
+    //cellPen.setStyle(Qt::SolidLine);
+    //cellPen.setJoinStyle(Qt::MiterJoin);
     
     cellBrush.setColor(QColor(0, 0, 0));
     cellBrush.setStyle(Qt::SolidPattern);
@@ -34,6 +36,9 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
     setMouseMode(MOVING);
 
     setFocusPolicy(Qt::ClickFocus);
+
+    currentPaintingIndex = 0;
+    currentErasingIndex = 0;
 }
 
 void GridPainter::animate()
@@ -96,135 +101,17 @@ void GridPainter::initEmptyGrid(int width, int height)
 void GridPainter::parsePlainText(const QString &fileName)
 {
     stopped = true;
-    std::ifstream fin;
-    fin.open(fileName.toStdString().c_str());
-    grid.clear();
-    if(fin.good())
-    {
-        string currentString;
-        do
-        {
-            std::getline(fin, currentString);
-        }
-        while(currentString[0] == '!');
-
-        string lineOfBody = currentString; //that is, the first row of cells
-
-        QVector<string> body;
-
-        body.push_back(lineOfBody);
-
-        while(!fin.eof())
-        {
-            getline(fin, lineOfBody);
-            body.push_back(lineOfBody);
-        }
-
-        int height = body.size();
-
-        unsigned int maxWidth = body[0].length();
-        for(int i = 1; i < body.size(); i++)
-        {
-            if(body[i].length() > maxWidth)
-            {
-                maxWidth = body[i].length();
-            }
-        }
-
-        int width = maxWidth;
-
-        grid.initEmptyGrid(width * 2, height * 2);
-
-        for(int i = 0; i < body.size(); i++)
-        {
-            for(unsigned int j = 0; j < body[i].length(); j++)
-            {
-                if(body[i][j] != '.')
-                {
-                    grid.setAlive(i, j, true);
-                }
-            }
-        }
-    }
+    grid.parsePlainText(fileName);
     drawingPosition.setX(4 * scale * grid.getWidth() / 2);
     drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    fin.close();
 }
 
 void GridPainter::parseRLE(const QString &fileName)
 {
     stopped = true;
-    std::ifstream fin;
-    grid.clear();
-    fin.open(fileName.toStdString().c_str());
-    if(fin.good())
-    {
-        string inputLine;
-        int x = 0, y = 0;      // current location
-        int paramArgument = 0; // our parameter location
-        while(!fin.eof())
-        {
-            std::getline(fin, inputLine);
-            if(inputLine.length() != 0 && (inputLine[0] == 'x' || inputLine[0] == '#'))
-            {
-                continue; // We do not care of comment lines
-            }
-            for(unsigned int i = 0; i < inputLine.length(); i++)
-            {
-                char c = inputLine[i];
-                int param = (paramArgument == 0 ? 1 : paramArgument);
-                if(c == 'b')
-                {
-                    x += param;
-                    paramArgument = 0;
-                }
-                else
-                {
-                    if(c == 'o')
-                    {
-                        while(param-- > 0)
-                        {
-                            grid.setAlive(x++, y, true);
-                        }
-                        paramArgument = 0;
-                    }
-                    else
-                    {
-                        if(c == '$')
-                        {
-                            y += param;
-                            x = 0;
-                            paramArgument = 0;
-                        }
-                        else
-                        {
-                            if('0' <= c && c <= '9')
-                            {
-                                paramArgument = 10 * paramArgument + c - '0';
-                            }
-                            else
-                            {
-                                if(c == '!')
-                                {
-                                    return;
-                                }
-                                else
-                                {
-                                    if(c == ' ')
-                                    {
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    grid.parseRLE(fileName);
     drawingPosition.setX(4 * scale * grid.getWidth() / 2);
     drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    fin.close();
 }
 
 void GridPainter::initRandom(int width, int height)
@@ -239,6 +126,32 @@ void GridPainter::initRandom(int width, int height)
 bool GridPainter::isStopped()
 {
     return stopped;
+}
+
+void GridPainter::setDrawingPattern(int index, const QString& fileName)
+{
+    if(index > 10 || index < 0) // we do not store more than 10
+    {
+        return;
+    }
+    if(index >= painting.size())
+    {
+        painting.resize(index + 1);
+    }
+    painting[index].parseRLE(fileName);
+}
+
+void GridPainter::setErasingPattern(int index, const QString& fileName)
+{
+    if(index > 10 || index < 0) // we do not store more than 10
+    {
+        return;
+    }
+    if(index >= erasing.size())
+    {
+        erasing.resize(index + 1);
+    }
+    erasing[index].parseRLE(fileName);
 }
 
 void GridPainter::paintEvent(QPaintEvent *event)
@@ -264,6 +177,12 @@ void GridPainter::paintEvent(QPaintEvent *event)
                       cellWidth,
                       cellWidth,
                       Qt::red);*/
+    QFont f;
+    f.setPixelSize(15);
+    painter->setFont(f);
+    painter->drawText(QRect(0, 0, 1000, 100),
+                      Qt::AlignLeft,
+                      QStringLiteral("Generation ") + QString::number(grid.getGeneration()));
     painter->restore();
 
     painter->end();
@@ -272,6 +191,7 @@ void GridPainter::paintEvent(QPaintEvent *event)
 void GridPainter::setMouseMode(MOUSE_MODE m)
 {
     mode = m;
+    // hide cursor when drawing
    /* if(mode == MOVING)
     {
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
@@ -289,6 +209,7 @@ void GridPainter::wheelEvent(QWheelEvent *event)
     {
     case MOVING:
     case DRAWING:
+    case ERASING:
         update();
         if (event->delta() > 0)
         {
@@ -319,8 +240,6 @@ void GridPainter::wheelEvent(QWheelEvent *event)
 
 void GridPainter::mousePressEvent(QMouseEvent *event)
 {
-    mousePosition.setX(event->pos().x());
-    mousePosition.setY(event->pos().y());
     switch(mode)
     {
     case MOVING:
@@ -335,19 +254,49 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
             update();
             int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
             int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
-            // if the mouse is pressed, make the cell alive
-            grid.setAlive(yPosition,
-                          xPosition,
-                          true);
+            // if the mouse is pressed, make the cells alive
+            for(int i = 0; i < painting[currentPaintingIndex].getHeight(); i++)
+            {
+                for(int j = 0; j < painting[currentPaintingIndex].getWidth(); j++)
+                {
+                    if(painting[currentPaintingIndex].isAlive(i, j))
+                    {
+                        grid.setAlive(yPosition + j,
+                                      xPosition + i,
+                                      true);
+                    }
+                }
+            }
+        }
+    break;
+    case ERASING:
+        if (event->button() == Qt::LeftButton)
+        {
+            update();
+            int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
+            int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
+            // if the mouse is pressed, make the cells dead
+            for(int i = 0; i < erasing[currentErasingIndex].getHeight(); i++)
+            {
+                for(int j = 0; j < erasing[currentErasingIndex].getWidth(); j++)
+                {
+                    if(erasing[currentErasingIndex].isAlive(i, j))
+                    {
+                        grid.setAlive(yPosition + j,
+                                      xPosition + i,
+                                      false);
+                    }
+                }
+            }
         }
     break;
     }
+    mousePosition.setX(event->pos().x());
+    mousePosition.setY(event->pos().y());
 }
 
 void GridPainter::mouseMoveEvent(QMouseEvent *event)
 {
-    mousePosition.setX(event->pos().x());
-    mousePosition.setY(event->pos().y());
     switch(mode)
     {
     case MOVING:
@@ -355,23 +304,35 @@ void GridPainter::mouseMoveEvent(QMouseEvent *event)
         {
             drawingPosition.setX(drawingPosition.x() + event->pos().x() - mousePosition.x());
             drawingPosition.setY(drawingPosition.y() + event->pos().y() - mousePosition.y());
-            mousePosition.setX(event->pos().x());
-            mousePosition.setY(event->pos().y());
         }
     break;
     case DRAWING:
-
-        int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
-        int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
-        // if the mouse is pressed, then actually make the cell alive
-        if ((event->buttons() & Qt::LeftButton))
-        {
-            grid.setAlive(yPosition,
-                          xPosition,
-                          true);
-        }
+        // it is easier to draw only on clicks
+    break;
+    case ERASING:
+        /*if (event->button() == Qt::LeftButton)
+        {*/
+            update();
+            int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
+            int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
+            // if the mouse is pressed, make the cells dead
+            for(int i = 0; i < erasing[currentErasingIndex].getHeight(); i++)
+            {
+                for(int j = 0; j < erasing[currentErasingIndex].getWidth(); j++)
+                {
+                    if(erasing[currentErasingIndex].isAlive(i, j))
+                    {
+                        grid.setAlive(yPosition + j,
+                                      xPosition + i,
+                                      false);
+                    }
+                }
+            }
+        /*}*/
     break;
     }
+    mousePosition.setX(event->pos().x());
+    mousePosition.setY(event->pos().y());
     update();
 }
 
@@ -391,11 +352,174 @@ void GridPainter::keyPressEvent(QKeyEvent * event)
 {
     switch(event->key())
     {
-    case Qt::Key_M:
+    case Qt::Key_V:
         setMouseMode(MOVING);
         break;
     case Qt::Key_D:
         setMouseMode(DRAWING);
+        break;
+    case Qt::Key_E:
+        setMouseMode(ERASING);
+        break;
+    case Qt::Key_0:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 0)
+            {
+                currentPaintingIndex = 0;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 0)
+            {
+                currentErasingIndex = 0;
+            }
+        }
+        break;
+    case Qt::Key_1:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 1)
+            {
+                currentPaintingIndex = 1;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 1)
+            {
+                currentErasingIndex = 1;
+            }
+        }
+        break;
+    case Qt::Key_2:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 2)
+            {
+                currentPaintingIndex = 2;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 2)
+            {
+                currentErasingIndex = 2;
+            }
+        }
+        break;
+    case Qt::Key_3:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 3)
+            {
+                currentPaintingIndex = 3;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 3)
+            {
+                currentErasingIndex = 3;
+            }
+        }
+        break;
+    case Qt::Key_4:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 4)
+            {
+                currentPaintingIndex = 4;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 4)
+            {
+                currentErasingIndex = 4;
+            }
+        }
+        break;
+    case Qt::Key_5:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 5)
+            {
+                currentPaintingIndex = 5;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 5)
+            {
+                currentErasingIndex = 5;
+            }
+        }
+        break;
+    case Qt::Key_6:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 6)
+            {
+                currentPaintingIndex = 6;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 6)
+            {
+                currentErasingIndex = 6;
+            }
+        }
+        break;
+    case Qt::Key_7:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 7)
+            {
+                currentPaintingIndex = 7;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 7)
+            {
+                currentErasingIndex = 7;
+            }
+        }
+        break;
+    case Qt::Key_8:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 8)
+            {
+                currentPaintingIndex = 8;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 8)
+            {
+                currentErasingIndex = 8;
+            }
+        }
+        break;
+    case Qt::Key_9:
+        if(mode == DRAWING)
+        {
+            if(painting.size() > 9)
+            {
+                currentPaintingIndex = 9;
+            }
+        }
+        if(mode == ERASING)
+        {
+            if(erasing.size() > 9)
+            {
+                currentErasingIndex = 9;
+            }
+        }
         break;
     }
     update();

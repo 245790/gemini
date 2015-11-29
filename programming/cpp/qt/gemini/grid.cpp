@@ -1,4 +1,7 @@
+#include <fstream>
 #include <math.h>
+#include <QDebug>
+#include <QFile>
 
 #include "grid.h"
 
@@ -40,6 +43,113 @@ void Grid::initRandom(int width, int height)
     generationCount = 0;
 }
 
+void Grid::parsePlainText(const QString &fileName)
+{
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream fin(&file);
+    this->clear();
+    QString currentString;
+    do
+    {
+        currentString = fin.readLine();
+    }
+    while(currentString[0] == '!');
+
+    QString lineOfBody = currentString; //that is, the first row of cells
+
+    QVector<QString> body;
+
+    body.push_back(lineOfBody);
+
+    while(!fin.atEnd())
+    {
+        lineOfBody = fin.readLine();
+        body.push_back(lineOfBody);
+    }
+
+    for(int i = 0; i < body.size(); i++)
+    {
+        for(unsigned int j = 0; j < body[i].length(); j++)
+        {
+            if(body[i][j] != '.')
+            {
+                this->setAlive(i, j, true);
+            }
+        }
+    }
+}
+
+void Grid::parseRLE(const QString &fileName)
+{
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream fin(&file);
+    this->clear();
+    QString inputLine;
+    int x = 0, y = 0;      // current location
+    int paramArgument = 0; // our parameter location
+    while(!fin.atEnd())
+    {
+        inputLine = fin.readLine();
+        if(inputLine.length() != 0 && (inputLine[0] == 'x' || inputLine[0] == '#'))
+        {
+            continue; // We do not care of comment lines
+        }
+        for(unsigned int i = 0; i < inputLine.length(); i++)
+        {
+            QChar c = inputLine[i];
+            int param = (paramArgument == 0 ? 1 : paramArgument);
+            if(c == 'b')
+            {
+                x += param;
+                paramArgument = 0;
+            }
+            else
+            {
+                if(c == 'o')
+                {
+                    while(param-- > 0)
+                    {
+                        this->setAlive(x++, y, true);
+                    }
+                    paramArgument = 0;
+                }
+                else
+                {
+                    if(c == '$')
+                    {
+                        y += param;
+                        x = 0;
+                        paramArgument = 0;
+                    }
+                    else
+                    {
+                        if('0' <= c && c <= '9')
+                        {
+                            paramArgument = 10 * paramArgument + c.digitValue();
+                        }
+                        else
+                        {
+                            if(c == '!')
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                if(c == ' ')
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Grid::clear()
 {
     root = root->emptyTree(root->getLevel());
@@ -54,7 +164,7 @@ bool Grid::isAlive(int heightIndex, int widthIndex)
 void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 {
     // If an index does not fit into grid
-    while(widthIndex > 1 << root->getLevel() || heightIndex > 1 << root->getLevel())
+    while(abs(widthIndex) > getWidth() / 2 || abs(heightIndex) > getHeight() / 2)
     {
         root = root->expandUniverse();
     }

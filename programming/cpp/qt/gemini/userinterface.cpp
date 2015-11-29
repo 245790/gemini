@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include <QString>
 #include <QtWidgets>
 
@@ -26,17 +28,14 @@ UserInterface::UserInterface()
     nextGenerationButton = new QPushButton(tr("Next Generation"));
     connect(nextGenerationButton, SIGNAL(pressed()), gridPainter, SLOT(nextGeneration()));
 
-    mode = new QListWidget;
-    mode->setViewMode(QListView::IconMode);
-    mode->setIconSize(QSize(30, 30));
-    mode->setMovement(QListView::Static);
-    mode->setMaximumWidth(128);
-    mode->setSpacing(12);
-    createIcons();
+    mode = new QTreeView;
+    mode->setModel(modelFromFile(":/model.txt"));
+    mode->setMaximumWidth(400);
+    connect(mode, SIGNAL(clicked(QModelIndex)), this, SLOT(changeMode(QModelIndex)));
 
     painterAndMode = new QHBoxLayout;
     painterAndMode->addWidget(mode);
-    painterAndMode->addWidget(gridPainter);
+    painterAndMode->addWidget(gridPainter, 1);
 
     mainLayout = new QHBoxLayout;
     mainLayout->addWidget(stopButton);
@@ -98,23 +97,64 @@ void UserInterface::createMenus()
     setMenuBar(menuBar);
 }
 
-void UserInterface::createIcons()
+QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
 {
-    drawing = new QListWidgetItem(mode);
-    drawing->setText(tr("Drawing"));
-    drawing->setTextAlignment(Qt::AlignHCenter);
-    drawing->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    moving = new QListWidgetItem(mode);
-    moving->setText(tr("Moving"));
-    moving->setTextAlignment(Qt::AlignHCenter);
-    moving->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    QTextStream stream(&file);
 
+    QStandardItemModel *model = new QStandardItemModel;
 
-    connect(mode,
-            SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(changeMode(QListWidgetItem*,QListWidgetItem*)));
+    int rowCount = 0;
 
+    model->insertRow(rowCount);
+    model->insertColumn(0);
+
+    int paintingIndex = -1;
+    bool readDrawing = false; // true if we met line "drawing" while parsing
+    int erasingIndex = -1;
+    bool readErasing = false; // true if we met line "erasing" while parsing
+
+    while (!stream.atEnd())
+    {
+        QString line = stream.readLine();
+
+        model->setData(model->index(rowCount, 0), QVariant(line));
+
+        if(line.trimmed().toLower() == "drawing")
+        {
+            readDrawing = true;
+        }
+
+        if(line.trimmed().toLower() == "erasing")
+        {
+            readErasing = true;
+        }
+
+        if(readDrawing && !readErasing)
+        {
+            if(paintingIndex >= 0)
+            {
+                gridPainter->setDrawingPattern(paintingIndex, line.trimmed());
+            }
+            paintingIndex++;
+        }
+
+        if(readDrawing && readErasing)
+        {
+            if(erasingIndex >= 0)
+            {
+                gridPainter->setErasingPattern(erasingIndex, line.trimmed());
+            }
+            erasingIndex++;
+        }
+
+        rowCount++;
+        model->insertRow(rowCount);
+    }
+
+    return model;
 }
 
 void UserInterface::setCellColor()
@@ -171,21 +211,8 @@ void UserInterface::initRandom()
     gridPainter->update();
 }
 
-void UserInterface::changeMode(QListWidgetItem *current, QListWidgetItem *previous)
+void UserInterface::changeMode(const QModelIndex &index)
 {
-    if (!current)
-        current = previous;
-
-    switch(mode->row(current))
-    {
-    case 0:
-        gridPainter->setMouseMode(DRAWING);
-    break;
-
-    case 1:
-        gridPainter->setMouseMode(MOVING);
-    break;
-    }
 }
 
 void UserInterface::stopButtonPressed()

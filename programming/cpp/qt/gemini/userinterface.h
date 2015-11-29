@@ -6,6 +6,7 @@
 #include "gridpainter.h"
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
 class QAction;
 class QActionGroup;
 class QLabel;
@@ -17,6 +18,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QPushButton;
 class QTimer;
+class QTreeView;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -29,13 +31,13 @@ private slots:
     void setSpaceColor();
     void openFile();
     void initRandom();
-    void changeMode(QListWidgetItem *current, QListWidgetItem *previous);
+    void changeMode(const QModelIndex & index);
     void stopButtonPressed();
 
 private:
     void createActions();
     void createMenus();
-    void createIcons();
+    QAbstractItemModel *modelFromFile(const QString& fileName);
 
     QWidget *all;
     GridPainter *gridPainter;
@@ -54,9 +56,7 @@ private:
     QTimer *timer;
     QVBoxLayout *layout;
     QHBoxLayout *mainLayout;
-    QListWidget *mode;
-    QListWidgetItem *drawing;
-    QListWidgetItem *moving;
+    QTreeView *mode;
     QHBoxLayout *painterAndMode;
 
 public:

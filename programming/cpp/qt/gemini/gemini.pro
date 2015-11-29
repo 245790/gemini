@@ -22,3 +22,8 @@ HEADERS  += userinterface.h \
     grid.h \
     gridpainter.h \
     treenode.h
+
+RESOURCES += \
+    treemodel.qrc
+
+DISTFILES +=

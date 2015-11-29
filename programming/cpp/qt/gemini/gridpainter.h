@@ -20,7 +20,8 @@ QT_END_NAMESPACE
 enum MOUSE_MODE
 {
     DRAWING,
-    MOVING
+    MOVING,
+    ERASING
 };
 
 class GridPainter : public QOpenGLWidget
@@ -28,37 +29,49 @@ class GridPainter : public QOpenGLWidget
     Q_OBJECT
 private:
     Grid grid;
-    bool stopped;
+
+    QVector<Grid> painting; // patterns that we paint with
+    int currentPaintingIndex; // exact pattern used for drawing
+    QVector<Grid> erasing; // patterns that we erase with
+    int currentErasingIndex; // exact pattern used for drawing
+
+    bool stopped; // true if the field is updating
     
-    QColor cellColor;
-    QColor spaceColor;
+    QColor cellColor; // color of a living cell
+    QColor spaceColor; // color of a dead cel;
     
     QBrush cellBrush;
     QBrush spaceBrush;
     
     QPen cellPen;
 
-    float scale;
+    float scale; // 0.25 means that a cell is 1 pixel wide; cannot be less
 
-    int cellWidth;
+    int cellWidth; // width of a cell, pixels
 
-    QPoint drawingPosition;
-    QPoint mousePosition;
+    QPoint drawingPosition; // center of a field. It is being drawn "around" this point
+    QPoint mousePosition; // position of a mouse; we need to store it so as to draw/move
 
     bool mousePressed;
 
-    MOUSE_MODE mode;
+    MOUSE_MODE mode; // how we process mouse events
 
 public:
     GridPainter(QWidget *parent);
     void setCellColor(QColor cc);
     void setSpaceColor(QColor sc);
+
+    // creates a square grid, whose side is bigger that width and height
     void initEmptyGrid(int width, int height);
+
     void parsePlainText(const QString &fileName);
     void parseRLE(const QString &fileName);
     void setMouseMode(MOUSE_MODE m);
     void initRandom(int width, int height);
     bool isStopped();
+
+    void setDrawingPattern(int index, const QString& fileName);
+    void setErasingPattern(int index, const QString& fileName);
 
 public slots:
     void animate();

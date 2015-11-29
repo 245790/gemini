@@ -95,7 +95,7 @@ public:
         this->ne = ne;
         this->sw = sw;
         this->se = se;
-        this->level = nw->level + 1 ;
+        this->level = nw->level + 1;
         this->bitView = bitView;
         population = nw->population +
                      ne->population +
@@ -375,12 +375,12 @@ public:
     */
     TreeNode* nextGeneration()
     {
-        try
+        /*try
         {
             return hashMap.at(this);
         }
         catch(const out_of_range& oor)
-        {
+        {*/
             // skip empty regions quickly
             if (population == 0)
             {
@@ -389,7 +389,7 @@ public:
             if (level == 2)
             {
                 // slowSimulation returns a treenode level 1, therefore no bitview
-                return hashMap[this] = slowSimulation();
+                return /*hashMap[this] = */slowSimulation();
             }
             TreeNode *n00 = nw->centeredSubnode(),
             *n01 = centeredHorizontal(nw, ne),
@@ -401,11 +401,11 @@ public:
             *n21 = centeredHorizontal(sw, se),
             *n22 = se->centeredSubnode();
 
-            return hashMap[this] = create(create(n00, n01, n10, n11)->nextGeneration(),
+            return /*hashMap[this] = */create(create(n00, n01, n10, n11)->nextGeneration(),
                                           create(n01, n02, n11, n12)->nextGeneration(),
                                           create(n10, n11, n20, n21)->nextGeneration(),
                                           create(n11, n12, n21, n22)->nextGeneration())->setBitMask();
-        }
+        /*}*/
     }
 
     void recDraw(QPainter* painter, int x0, int y0, int width)
