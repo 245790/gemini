@@ -9,7 +9,7 @@ UserInterface::UserInterface()
 {
 
     all = new QWidget;
-    setCentralWidget(all);
+    setCentralWidget(all); // Central widget of a widnow is "all"
 
     gridPainter = new GridPainter(this);
 
@@ -29,13 +29,14 @@ UserInterface::UserInterface()
     connect(nextGenerationButton, SIGNAL(pressed()), gridPainter, SLOT(nextGeneration()));
 
     mode = new QTreeView;
-    mode->setModel(modelFromFile(":/model.txt"));
+    mode->setModel(modelFromFile(":/model.txt")); // Resources/...
     mode->setMaximumWidth(400);
     connect(mode, SIGNAL(clicked(QModelIndex)), this, SLOT(changeMode(QModelIndex)));
 
     painterAndMode = new QHBoxLayout;
     painterAndMode->addWidget(mode);
     painterAndMode->addWidget(gridPainter, 1);
+    // 1 means that gridPainter gets as big as possible when the window is stretched
 
     mainLayout = new QHBoxLayout;
     mainLayout->addWidget(stopButton);
@@ -116,6 +117,7 @@ QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
     int erasingIndex = -1;
     bool readErasing = false; // true if we met line "erasing" while parsing
 
+
     while (!stream.atEnd())
     {
         QString line = stream.readLine();
@@ -125,11 +127,13 @@ QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
         if(line.trimmed().toLower() == "drawing")
         {
             readDrawing = true;
+            UserInterface::drawingIndex = rowCount; // i mean the class variable
         }
 
         if(line.trimmed().toLower() == "erasing")
         {
             readErasing = true;
+            UserInterface::erasingIndex = rowCount; // i mean the class variable
         }
 
         if(readDrawing && !readErasing)
@@ -213,6 +217,21 @@ void UserInterface::initRandom()
 
 void UserInterface::changeMode(const QModelIndex &index)
 {
+    if(index.row() == 0) // then the user clicked on MOVING
+    {
+        gridPainter->setMouseMode(MOVING);
+        return;
+    }
+    if(index.row() > drawingIndex && index.row() < erasingIndex) // then the user clicked on DRAWING
+    {
+        gridPainter->setMouseMode(DRAWING);
+        return;
+    }
+    if(index.row() > erasingIndex) // then the user clicked on DRAWING
+    {
+        gridPainter->setMouseMode(ERASING);
+        return;
+    }
 }
 
 void UserInterface::stopButtonPressed()

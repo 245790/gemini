@@ -26,6 +26,9 @@ class UserInterface : public QMainWindow
 {
     Q_OBJECT
 
+protected:
+    //void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+
 private slots:
     void setCellColor();
     void setSpaceColor();
@@ -39,8 +42,8 @@ private:
     void createMenus();
     QAbstractItemModel *modelFromFile(const QString& fileName);
 
-    QWidget *all;
-    GridPainter *gridPainter;
+    QWidget *all; // All widgets belong to this
+    GridPainter *gridPainter; // A widget with cells
     QPushButton *stopButton;
     QPushButton *clearButton;
     QPushButton *rotateClockwiseButton;
@@ -48,16 +51,19 @@ private:
     QPushButton *nextGenerationButton;
     QMenu *viewMenu;
     QMenu *fileMenu;
-    QMenuBar *menuBar;
+    QMenuBar *menuBar; // the entire menu strip
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
     QAction *openFileAct;
     QAction *initRandomAct;
-    QTimer *timer;
-    QVBoxLayout *layout;
-    QHBoxLayout *mainLayout;
-    QTreeView *mode;
-    QHBoxLayout *painterAndMode;
+    QTimer *timer; // timer that calls gridPainter.animate()s
+    QVBoxLayout *layout; // contains mainLayout and painterAndMode
+    QHBoxLayout *mainLayout; // contains buttons at the bottom
+    QTreeView *mode; // specifies a drawing/erasing pattern and mode
+    QHBoxLayout *painterAndMode; // contains gridPainter and mode
+
+    int drawingIndex; // index of "drawing" in treeView
+    int erasingIndex; // index of "erasing" in treeView
 
 public:
     UserInterface();

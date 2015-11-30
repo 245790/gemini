@@ -348,7 +348,7 @@ void GridPainter::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void GridPainter::keyPressEvent(QKeyEvent * event)
+/*void GridPainter::keyPressEvent(QKeyEvent * event)
 {
     switch(event->key())
     {
@@ -523,4 +523,4 @@ void GridPainter::keyPressEvent(QKeyEvent * event)
         break;
     }
     update();
-}
+}*/
