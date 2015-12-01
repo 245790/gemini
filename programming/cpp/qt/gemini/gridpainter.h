@@ -70,8 +70,13 @@ public:
     void initRandom(int width, int height);
     bool isStopped();
 
+    // These two parse text files and put that in corresponding Grids
     void setDrawingPattern(int index, const QString& fileName);
     void setErasingPattern(int index, const QString& fileName);
+    // sets a pattern, no matter the mode. Used by UserInterface::keyPressEvent
+    void setCurrentPattern(int index);
+    void setCurrentDrawingPattern(int index);
+    void setCurrentErasingPattern(int index);
 
 public slots:
     void animate();

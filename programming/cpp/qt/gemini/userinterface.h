@@ -27,12 +27,13 @@ class UserInterface : public QMainWindow
     Q_OBJECT
 
 protected:
-    //void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
     void setCellColor();
     void setSpaceColor();
-    void openFile();
+    void openRleFile();
+    void openPlainTextFile();
     void initRandom();
     void changeMode(const QModelIndex & index);
     void stopButtonPressed();
@@ -46,16 +47,18 @@ private:
     GridPainter *gridPainter; // A widget with cells
     QPushButton *stopButton;
     QPushButton *clearButton;
-    QPushButton *rotateClockwiseButton;
-    QPushButton *rotateAntiClockwiseButton;
     QPushButton *nextGenerationButton;
     QMenu *viewMenu;
     QMenu *fileMenu;
+    QMenu *editMenu;
     QMenuBar *menuBar; // the entire menu strip
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
-    QAction *openFileAct;
     QAction *initRandomAct;
+    QAction *openRleFileAct;
+    QAction *openPlainTextFileAct;
+    QAction *rotateClockwiseAct;
+    QAction *rotateAntiClockwiseAct;
     QTimer *timer; // timer that calls gridPainter.animate()s
     QVBoxLayout *layout; // contains mainLayout and painterAndMode
     QHBoxLayout *mainLayout; // contains buttons at the bottom

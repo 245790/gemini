@@ -19,12 +19,6 @@ UserInterface::UserInterface()
     clearButton = new QPushButton(tr("Clear"));
     connect(clearButton, SIGNAL(pressed()), gridPainter, SLOT(clear()));
 
-    rotateClockwiseButton = new QPushButton(tr("Rotate clockwise"));
-    connect(rotateClockwiseButton, SIGNAL(pressed()), gridPainter, SLOT(rotateClockwise()));
-
-    rotateAntiClockwiseButton = new QPushButton(tr("Rotate anti-clockwise"));
-    connect(rotateAntiClockwiseButton, SIGNAL(pressed()), gridPainter, SLOT(rotateAntiClockwise()));
-
     nextGenerationButton = new QPushButton(tr("Next Generation"));
     connect(nextGenerationButton, SIGNAL(pressed()), gridPainter, SLOT(nextGeneration()));
 
@@ -41,8 +35,6 @@ UserInterface::UserInterface()
     mainLayout = new QHBoxLayout;
     mainLayout->addWidget(stopButton);
     mainLayout->addWidget(clearButton);
-    mainLayout->addWidget(rotateClockwiseButton);
-    mainLayout->addWidget(rotateAntiClockwiseButton);
     mainLayout->addWidget(nextGenerationButton);
 
     layout = new QVBoxLayout;
@@ -65,8 +57,11 @@ UserInterface::UserInterface()
 
 void UserInterface::createActions()
 {
-    openFileAct = new QAction(tr("&Open file"), this);
-    connect(openFileAct, SIGNAL(triggered()), this, SLOT(openFile()));
+    openRleFileAct = new QAction(tr("&Open rle file"), this);
+    connect(openRleFileAct, SIGNAL(triggered()), this, SLOT(openRleFile()));
+
+    openPlainTextFileAct = new QAction(tr("Open &plain text file"), this);
+    connect(openPlainTextFileAct, SIGNAL(triggered()), this, SLOT(openPlainTextFile()));
 
     initRandomAct = new QAction(tr("&Fill with random data"), this);
     connect(initRandomAct, SIGNAL(triggered()), this, SLOT(initRandom()));
@@ -77,6 +72,11 @@ void UserInterface::createActions()
     setSpaceColorAct = new QAction(tr("Set &space color"), this);
     connect(setSpaceColorAct, SIGNAL(triggered()), this, SLOT(setSpaceColor()));
 
+    rotateClockwiseAct = new QAction(tr("&Rotate clock wise"), this);
+    connect(rotateClockwiseAct, SIGNAL(triggered()), gridPainter, SLOT(rotateClockwise()));
+
+    rotateAntiClockwiseAct = new QAction(tr("Rotate &anti clock wise"), this);
+    connect(rotateAntiClockwiseAct, SIGNAL(triggered()), gridPainter, SLOT(rotateAntiClockwise()));
 }
 
 void UserInterface::createMenus()
@@ -84,15 +84,23 @@ void UserInterface::createMenus()
     menuBar = new QMenuBar();
 
     fileMenu = new QMenu(tr("&File"));
-    fileMenu->addAction(openFileAct);
-    fileMenu->addAction(initRandomAct);
+    fileMenu->addAction(openRleFileAct);
+    fileMenu->addAction(openPlainTextFileAct);
+
 
     viewMenu = new QMenu(tr("&View"));
     viewMenu->addAction(setCellColorAct);
     viewMenu->addAction(setSpaceColorAct);
     viewMenu->addSeparator();
 
+    editMenu = new QMenu(tr("&Edit"));
+    editMenu->addAction(initRandomAct);
+    editMenu->addAction(rotateClockwiseAct);
+    editMenu->addAction(rotateAntiClockwiseAct);
+
+
     menuBar->addMenu(fileMenu);
+    menuBar->addMenu(editMenu);
     menuBar->addMenu(viewMenu);
 
     setMenuBar(menuBar);
@@ -184,7 +192,7 @@ void UserInterface::setSpaceColor()
                                                     "Select space color"));
     gridPainter->update();
 }
-void UserInterface::openFile()
+void UserInterface::openRleFile()
 {
     if(!gridPainter->isStopped())
     {
@@ -192,7 +200,19 @@ void UserInterface::openFile()
     }
     gridPainter->parseRLE(
                 QFileDialog::getOpenFileName(this,
-                                             tr("Open file")));
+                                             tr("Open RLE file")));
+    gridPainter->update();
+}
+
+void UserInterface::openPlainTextFile()
+{
+    if(!gridPainter->isStopped())
+    {
+        stopButtonPressed();
+    }
+    gridPainter->parsePlainText(
+                QFileDialog::getOpenFileName(this,
+                                             tr("Open plain text file")));
     gridPainter->update();
 }
 
@@ -246,6 +266,53 @@ void UserInterface::stopButtonPressed()
     {
         stopButton->setText("Stop");
     }
+}
+
+void UserInterface::keyPressEvent(QKeyEvent * event)
+{
+    switch(event->key())
+    {
+    case Qt::Key_V:
+        gridPainter->setMouseMode(MOVING);
+        break;
+    case Qt::Key_D:
+        gridPainter->setMouseMode(DRAWING);
+        break;
+    case Qt::Key_E:
+        gridPainter->setMouseMode(ERASING);
+        break;
+    case Qt::Key_0:
+        gridPainter->setCurrentPattern(0);
+        break;
+    case Qt::Key_1:
+        gridPainter->setCurrentPattern(1);
+        break;
+    case Qt::Key_2:
+        gridPainter->setCurrentPattern(2);
+        break;
+    case Qt::Key_3:
+        gridPainter->setCurrentPattern(3);
+        break;
+    case Qt::Key_4:
+        gridPainter->setCurrentPattern(4);
+        break;
+    case Qt::Key_5:
+        gridPainter->setCurrentPattern(5);
+        break;
+    case Qt::Key_6:
+        gridPainter->setCurrentPattern(6);
+        break;
+    case Qt::Key_7:
+        gridPainter->setCurrentPattern(7);
+        break;
+    case Qt::Key_8:
+        gridPainter->setCurrentPattern(8);
+        break;
+    case Qt::Key_9:
+        gridPainter->setCurrentPattern(9);
+        break;
+    }
+    update();
 }
 
 UserInterface::~UserInterface()

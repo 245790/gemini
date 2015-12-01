@@ -154,6 +154,34 @@ void GridPainter::setErasingPattern(int index, const QString& fileName)
     erasing[index].parseRLE(fileName);
 }
 
+void GridPainter::setCurrentPattern(int index)
+{
+    if(mode == DRAWING)
+    {
+        setCurrentDrawingPattern(index);
+    }
+    if(mode == ERASING)
+    {
+        setCurrentErasingPattern(index);
+    }
+}
+
+void GridPainter::setCurrentDrawingPattern(int index)
+{
+    if(painting.size() > index)
+    {
+        currentPaintingIndex = index;
+    }
+}
+
+void GridPainter::setCurrentErasingPattern(int index)
+{
+    if(erasing.size() > index)
+    {
+        currentErasingIndex = index;
+    }
+}
+
 void GridPainter::paintEvent(QPaintEvent *event)
 {
     QPainter *painter = new QPainter;
