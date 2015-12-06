@@ -1,3 +1,9 @@
+/* KPCC
+ * Graphical user interface
+ * Author: Alexandra Balyuk
+ * Date: 2015.09.05
+ */
+
 #include <QDebug>
 
 #include <QString>
@@ -242,14 +248,22 @@ void UserInterface::changeMode(const QModelIndex &index)
         gridPainter->setMouseMode(MOVING);
         return;
     }
-    if(index.row() > drawingIndex && index.row() < erasingIndex) // then the user clicked on DRAWING
+    if(index.row() >= drawingIndex && index.row() < erasingIndex) // then the user clicked on DRAWING
     {
         gridPainter->setMouseMode(DRAWING);
+        if(index.row() != drawingIndex)
+        {
+            gridPainter->setCurrentDrawingPattern(index.row() - drawingIndex - 1);
+        }
         return;
     }
     if(index.row() > erasingIndex) // then the user clicked on DRAWING
     {
         gridPainter->setMouseMode(ERASING);
+        if(index.row() != erasingIndex)
+        {
+            gridPainter->setCurrentErasingPattern(index.row() - erasingIndex - 1);
+        }
         return;
     }
 }
@@ -280,6 +294,12 @@ void UserInterface::keyPressEvent(QKeyEvent * event)
         break;
     case Qt::Key_E:
         gridPainter->setMouseMode(ERASING);
+        break;
+    case Qt::Key_Space:
+        gridPainter->stopPressed();
+        break;
+    case Qt::Key_N:
+        gridPainter->nextGeneration();
         break;
     case Qt::Key_0:
         gridPainter->setCurrentPattern(0);

@@ -1,3 +1,9 @@
+/* KPCC
+ * Class Grid is an interface for celluar automaton
+ * Author: Safin Karim
+ * Date: 2014.12.4
+ */
+
 #include <fstream>
 #include <math.h>
 #include <QDebug>

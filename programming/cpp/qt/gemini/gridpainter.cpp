@@ -1,3 +1,9 @@
+/* KPCC
+ * GridPainter is a widget able to draw Grids
+ * Author: Safin Karim, Alexandra Balyuk
+ * Date: 2015.09.05
+ */
+
 #include <fstream>
 #include <string>
 #include <QApplication>
@@ -75,7 +81,11 @@ void GridPainter::rotateAntiClockwise()
 
 void GridPainter::nextGeneration()
 {
-
+    if(stopped)
+    {
+        grid.update();
+        update();
+    }
 }
 
 void GridPainter::setCellColor(QColor cc)
@@ -207,6 +217,7 @@ void GridPainter::paintEvent(QPaintEvent *event)
                       Qt::red);*/
     QFont f;
     f.setPixelSize(15);
+    painter->setPen(Qt::SolidLine);
     painter->setFont(f);
     painter->drawText(QRect(0, 0, 1000, 100),
                       Qt::AlignLeft,
@@ -219,15 +230,6 @@ void GridPainter::paintEvent(QPaintEvent *event)
 void GridPainter::setMouseMode(MOUSE_MODE m)
 {
     mode = m;
-    // hide cursor when drawing
-   /* if(mode == MOVING)
-    {
-        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    }
-    else
-    {
-        QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-    }*/
 }
 
 #ifndef QT_NO_WHEELEVENT
@@ -375,180 +377,3 @@ void GridPainter::mouseReleaseEvent(QMouseEvent *event)
         update();
     }
 }
-
-/*void GridPainter::keyPressEvent(QKeyEvent * event)
-{
-    switch(event->key())
-    {
-    case Qt::Key_V:
-        setMouseMode(MOVING);
-        break;
-    case Qt::Key_D:
-        setMouseMode(DRAWING);
-        break;
-    case Qt::Key_E:
-        setMouseMode(ERASING);
-        break;
-    case Qt::Key_0:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 0)
-            {
-                currentPaintingIndex = 0;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 0)
-            {
-                currentErasingIndex = 0;
-            }
-        }
-        break;
-    case Qt::Key_1:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 1)
-            {
-                currentPaintingIndex = 1;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 1)
-            {
-                currentErasingIndex = 1;
-            }
-        }
-        break;
-    case Qt::Key_2:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 2)
-            {
-                currentPaintingIndex = 2;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 2)
-            {
-                currentErasingIndex = 2;
-            }
-        }
-        break;
-    case Qt::Key_3:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 3)
-            {
-                currentPaintingIndex = 3;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 3)
-            {
-                currentErasingIndex = 3;
-            }
-        }
-        break;
-    case Qt::Key_4:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 4)
-            {
-                currentPaintingIndex = 4;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 4)
-            {
-                currentErasingIndex = 4;
-            }
-        }
-        break;
-    case Qt::Key_5:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 5)
-            {
-                currentPaintingIndex = 5;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 5)
-            {
-                currentErasingIndex = 5;
-            }
-        }
-        break;
-    case Qt::Key_6:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 6)
-            {
-                currentPaintingIndex = 6;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 6)
-            {
-                currentErasingIndex = 6;
-            }
-        }
-        break;
-    case Qt::Key_7:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 7)
-            {
-                currentPaintingIndex = 7;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 7)
-            {
-                currentErasingIndex = 7;
-            }
-        }
-        break;
-    case Qt::Key_8:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 8)
-            {
-                currentPaintingIndex = 8;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 8)
-            {
-                currentErasingIndex = 8;
-            }
-        }
-        break;
-    case Qt::Key_9:
-        if(mode == DRAWING)
-        {
-            if(painting.size() > 9)
-            {
-                currentPaintingIndex = 9;
-            }
-        }
-        if(mode == ERASING)
-        {
-            if(erasing.size() > 9)
-            {
-                currentErasingIndex = 9;
-            }
-        }
-        break;
-    }
-    update();
-}*/

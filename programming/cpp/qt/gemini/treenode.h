@@ -1,3 +1,9 @@
+/* KPCC
+ * TreeNode is a 4-nary tree that represents a celluar automaton
+ * Author: Safin Karim
+ * Date: 2015.10.01
+ */
+
 #ifndef TREENODE_H
 #define TREENODE_H
 

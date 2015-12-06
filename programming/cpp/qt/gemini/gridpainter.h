@@ -1,3 +1,9 @@
+/* KPCC
+ * GridPainter is a widget able to draw Grids
+ * Author: Safin Karim, Alexandra Balyuk
+ * Date: 2015.09.05
+ */
+
 #ifndef GRIDPAINTER
 #define GRIDPAINTER
 

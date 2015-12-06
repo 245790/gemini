@@ -1,3 +1,9 @@
+/* KPCC
+ * Graphical user interface
+ * Author: Alexandra Balyuk
+ * Date: 2015.09.05
+ */
+
 #ifndef USERINTERFACE_H
 #define USERINTERFACE_H
 
