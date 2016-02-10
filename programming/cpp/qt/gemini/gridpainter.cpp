@@ -30,11 +30,12 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 
     cellPen = QPen(cellColor);
     cellPen.setStyle(Qt::NoPen);
-    //cellPen.setStyle(Qt::SolidLine);
-    //cellPen.setJoinStyle(Qt::MiterJoin);
     
     cellBrush.setColor(QColor(0, 0, 0));
     cellBrush.setStyle(Qt::SolidPattern);
+
+    gridPen.setColor(QColor(230, 230, 230));
+    gridPen.setStyle(Qt::SolidLine);
 
     spaceBrush.setColor(QColor(250, 250, 250));
     spaceBrush.setStyle(Qt::SolidPattern);
@@ -112,16 +113,18 @@ void GridPainter::parsePlainText(const QString &fileName)
 {
     stopped = true;
     grid.parsePlainText(fileName);
-    drawingPosition.setX(4 * scale * grid.getWidth() / 2);
-    drawingPosition.setY(4 * scale * grid.getHeight() / 2);
+    //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
+    //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
+    drawingPosition = *(new QPoint(0, 0));
 }
 
 void GridPainter::parseRLE(const QString &fileName)
 {
     stopped = true;
     grid.parseRLE(fileName);
-    drawingPosition.setX(4 * scale * grid.getWidth() / 2);
-    drawingPosition.setY(4 * scale * grid.getHeight() / 2);
+    //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
+    //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
+    drawingPosition = *(new QPoint(0, 0));
 }
 
 void GridPainter::initRandom(int width, int height)
@@ -208,7 +211,30 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->fillRect(drawingPosition.x() - width / 2, drawingPosition.y() - width / 2, width, width, spaceBrush);
 
     painter->save();
+    //painter->scale(scale, scale);
     grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
+    if(cellWidth > 3)
+    {
+        painter->setPen(gridPen);
+        for(int i = drawingPosition.x() - width / 2;
+                i < drawingPosition.x() + width / 2;
+                i += cellWidth)
+        {
+            painter->drawLine(i,
+                              drawingPosition.y() - width / 2,
+                              i,
+                              drawingPosition.y() + width / 2);
+        }
+        for(int i = drawingPosition.y() - width / 2;
+                i < drawingPosition.y() + width / 2;
+                i += cellWidth)
+        {
+            painter->drawLine(drawingPosition.x() - width / 2,
+                              i,
+                              drawingPosition.x() + width / 2,
+                              i);
+        }
+    }
     // draw a cell near a mouse
     /*painter->fillRect((mousePosition.x() - drawingPosition.x()) / cellWidth,
                       (mousePosition.y() - drawingPosition.y()) / cellWidth,

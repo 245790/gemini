@@ -51,6 +51,8 @@ private:
     
     QPen cellPen;
 
+    QPen gridPen;
+
     float scale; // 0.25 means that a cell is 1 pixel wide; cannot be less
 
     int cellWidth; // width of a cell, pixels
