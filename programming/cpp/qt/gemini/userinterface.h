@@ -7,26 +7,24 @@
 #ifndef USERINTERFACE_H
 #define USERINTERFACE_H
 
+#include <QAbstractItemModel>
+#include <QAction>
+#include <QActionGroup>
+#include <QLabel>
+#include <QListWidget>
+#include <QListWidgetItem>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QTimer>
+#include <QTreeView>
+#include <QWidget>
 
 #include "gridpainter.h"
-
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-class QAction;
-class QActionGroup;
-class QLabel;
-class QListWidget;
-class QListWidgetItem;
-class QMenu;
-class QMenuBar;
-class QVBoxLayout;
-class QHBoxLayout;
-class QPushButton;
-class QTimer;
-class QTreeView;
-class QWidget;
-QT_END_NAMESPACE
+#include "propertieswindow.h"
 
 class UserInterface : public QMainWindow
 {
@@ -38,11 +36,14 @@ protected:
 private slots:
     void setCellColor();
     void setSpaceColor();
+    void setGridColor();
+    void setUpdateRate();
     void openRleFile();
     void openPlainTextFile();
     void initRandom();
     void changeMode(const QModelIndex & index);
     void stopButtonPressed();
+    void updatePropertiesWindow();
 
 private:
     void createActions();
@@ -60,16 +61,19 @@ private:
     QMenuBar *menuBar; // the entire menu strip
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
+    QAction *setGridColorAct;
+    QAction *setUpdateRateAct;
     QAction *initRandomAct;
     QAction *openRleFileAct;
     QAction *openPlainTextFileAct;
     QAction *rotateClockwiseAct;
     QAction *rotateAntiClockwiseAct;
-    QTimer *timer; // timer that calls gridPainter.animate()s
+    QTimer *timer; // Calls gridPainter::animate() and userInterface::updatePropertiesWindow() repeatedly
     QVBoxLayout *layout; // contains mainLayout and painterAndMode
     QHBoxLayout *mainLayout; // contains buttons at the bottom
     QTreeView *mode; // specifies a drawing/erasing pattern and mode
     QHBoxLayout *painterAndMode; // contains gridPainter and mode
+    PropertiesWindow *propertiesWindow; // Shows various information about automata
 
     int drawingIndex; // index of "drawing" in treeView
     int erasingIndex; // index of "erasing" in treeView

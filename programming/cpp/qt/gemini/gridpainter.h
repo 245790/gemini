@@ -45,6 +45,7 @@ private:
     
     QColor cellColor; // color of a living cell
     QColor spaceColor; // color of a dead cel;
+    QColor gridColor; // color of a grid
     
     QBrush cellBrush;
     QBrush spaceBrush;
@@ -68,6 +69,10 @@ public:
     GridPainter(QWidget *parent);
     void setCellColor(QColor cc);
     void setSpaceColor(QColor sc);
+    void setGridColor(QColor gc);
+
+    int getGenerationCount();
+    long getPopulation();
 
     // creates a square grid, whose side is bigger that width and height
     void initEmptyGrid(int width, int height);

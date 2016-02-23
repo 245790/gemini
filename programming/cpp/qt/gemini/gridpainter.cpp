@@ -27,14 +27,15 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 
     cellColor = QColor(0, 0, 0);
     spaceColor = QColor(240, 240, 240);
+    gridColor = QColor(230, 230, 230);
 
     cellPen = QPen(cellColor);
     cellPen.setStyle(Qt::NoPen);
     
-    cellBrush.setColor(QColor(0, 0, 0));
+    cellBrush.setColor(cellColor);
     cellBrush.setStyle(Qt::SolidPattern);
 
-    gridPen.setColor(QColor(230, 230, 230));
+    gridPen.setColor(gridColor);
     gridPen.setStyle(Qt::SolidLine);
 
     spaceBrush.setColor(QColor(250, 250, 250));
@@ -102,6 +103,22 @@ void GridPainter::setSpaceColor(QColor sc)
     spaceColor = sc;
 
     spaceBrush.setColor(spaceColor);
+}
+
+void GridPainter::setGridColor(QColor gc)
+{
+    gridColor = gc;
+    gridPen.setColor(gridColor);
+}
+
+int GridPainter::getGenerationCount()
+{
+    return grid.getGeneration();
+}
+
+long GridPainter::getPopulation()
+{
+    return grid.getPopulation();
 }
 
 void GridPainter::initEmptyGrid(int width, int height)
@@ -211,7 +228,6 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->fillRect(drawingPosition.x() - width / 2, drawingPosition.y() - width / 2, width, width, spaceBrush);
 
     painter->save();
-    //painter->scale(scale, scale);
     grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
     if(cellWidth > 3)
     {
@@ -235,19 +251,7 @@ void GridPainter::paintEvent(QPaintEvent *event)
                               i);
         }
     }
-    // draw a cell near a mouse
-    /*painter->fillRect((mousePosition.x() - drawingPosition.x()) / cellWidth,
-                      (mousePosition.y() - drawingPosition.y()) / cellWidth,
-                      cellWidth,
-                      cellWidth,
-                      Qt::red);*/
-    QFont f;
-    f.setPixelSize(15);
-    painter->setPen(Qt::SolidLine);
-    painter->setFont(f);
-    painter->drawText(QRect(0, 0, 1000, 100),
-                      Qt::AlignLeft,
-                      QStringLiteral("Generation ") + QString::number(grid.getGeneration()));
+
     painter->restore();
 
     painter->end();

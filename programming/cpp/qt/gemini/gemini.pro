@@ -16,12 +16,14 @@ CONFIG += c++11
 SOURCES += main.cpp\
         userinterface.cpp \
     grid.cpp \
-    gridpainter.cpp
+    gridpainter.cpp \
+    propertieswindow.cpp
 
 HEADERS  += userinterface.h \
     grid.h \
     gridpainter.h \
-    treenode.h
+    treenode.h \
+    propertieswindow.h
 
 RESOURCES += \
     treemodel.qrc

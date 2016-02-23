@@ -224,6 +224,11 @@ int Grid::getGeneration()
     return generationCount;
 }
 
+long Grid::getPopulation()
+{
+    return root->getPopulation();
+}
+
 void Grid::rotateClockwise()
 {
     root = root->rotateClockwise();

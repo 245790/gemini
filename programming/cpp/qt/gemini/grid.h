@@ -34,6 +34,7 @@ public:
     // draws itself so that (x0, y0) is in the center
     void draw(QPainter* painter, int x0, int y0, float width);
     int getGeneration(); // returns generationCount
+    long getPopulation(); // returns the number of living cells
     void rotateClockwise();
     void rotateAntiClockwise();
 };

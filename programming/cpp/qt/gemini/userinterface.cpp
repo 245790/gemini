@@ -49,6 +49,8 @@ UserInterface::UserInterface()
 
     all->setLayout(layout);
 
+    propertiesWindow = new PropertiesWindow();
+
     createActions();
     createMenus();
 
@@ -56,8 +58,9 @@ UserInterface::UserInterface()
 
     resize(640, 480);
 
-    QTimer *timer = new QTimer(this);
+    timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), gridPainter, SLOT(animate()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(updatePropertiesWindow()));
     timer->start(100);
 }
 
@@ -78,6 +81,12 @@ void UserInterface::createActions()
     setSpaceColorAct = new QAction(tr("Set &space color"), this);
     connect(setSpaceColorAct, SIGNAL(triggered()), this, SLOT(setSpaceColor()));
 
+    setGridColorAct = new QAction(tr("Set &grid color"), this);
+    connect(setGridColorAct, SIGNAL(triggered()), this, SLOT(setGridColor()));
+
+    setUpdateRateAct = new QAction(tr("Set re&fresh rate"), this);
+    connect(setUpdateRateAct, SIGNAL(triggered()), this, SLOT(setUpdateRate()));
+
     rotateClockwiseAct = new QAction(tr("&Rotate clock wise"), this);
     connect(rotateClockwiseAct, SIGNAL(triggered()), gridPainter, SLOT(rotateClockwise()));
 
@@ -97,7 +106,9 @@ void UserInterface::createMenus()
     viewMenu = new QMenu(tr("&View"));
     viewMenu->addAction(setCellColorAct);
     viewMenu->addAction(setSpaceColorAct);
+    viewMenu->addAction(setGridColorAct);
     viewMenu->addSeparator();
+    viewMenu->addAction(setUpdateRateAct);
 
     editMenu = new QMenu(tr("&Edit"));
     editMenu->addAction(initRandomAct);
@@ -182,8 +193,8 @@ void UserInterface::setCellColor()
         stopButtonPressed();
     }
     gridPainter->setCellColor(QColorDialog::getColor(Qt::green,
-                                                    this,
-                                                    "Select cell color"));
+                                                     this,
+                                                     "Select cell color"));
     gridPainter->update();
 }
 
@@ -194,19 +205,42 @@ void UserInterface::setSpaceColor()
         stopButtonPressed();
     }
     gridPainter->setSpaceColor(QColorDialog::getColor(Qt::white,
-                                                    this,
-                                                    "Select space color"));
+                                                      this,
+                                                      "Select space color"));
     gridPainter->update();
 }
+
+void UserInterface::setGridColor()
+{
+    if(!gridPainter->isStopped())
+    {
+        stopButtonPressed();
+    }
+    gridPainter->setGridColor(QColorDialog::getColor(Qt::white,
+                                                    this,
+                                                    "Select grid color"));
+    gridPainter->update();
+}
+
+void UserInterface::setUpdateRate()
+{
+    timer->setInterval(QInputDialog::getInt(this,
+                                            tr("Enter refresh rate(miliseconds)"),
+                                            tr("Enter refresh rate(miliseconds)"),
+                                            100,
+                                            1,
+                                            1000000,
+                                            1));
+}
+
 void UserInterface::openRleFile()
 {
     if(!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
-    gridPainter->parseRLE(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Open RLE file")));
+    gridPainter->parseRLE(QFileDialog::getOpenFileName(this,
+                                                       tr("Open RLE file")));
     gridPainter->update();
 }
 
@@ -280,6 +314,12 @@ void UserInterface::stopButtonPressed()
     {
         stopButton->setText("Stop");
     }
+}
+
+void UserInterface::updatePropertiesWindow()
+{
+    propertiesWindow->setGeneration(gridPainter->getGenerationCount());
+    propertiesWindow->setPopulation(gridPainter->getPopulation());
 }
 
 void UserInterface::keyPressEvent(QKeyEvent * event)
