@@ -7,6 +7,7 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include "memory"
 #include <QPainter>
 #include <QString>
 
@@ -18,7 +19,7 @@ class Grid
 {
 private:
     int generationCount; // number of a generation passed since creation
-    TreeNode* root; // actually a grid
+    shared_ptr<TreeNode> root; // actually a grid
 public:
     Grid();
     void initEmptyGrid(int width, int height);
