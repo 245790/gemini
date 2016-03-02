@@ -1,4 +1,4 @@
-/* KPCC
+ /* KPCC
  * TreeNode is a 4-nary tree that represents a celluar automaton
  * Author: Safin Karim
  * Date: 2016.02.27
@@ -296,9 +296,12 @@ shared_ptr<TreeNode> TreeNode::centeredSubSubnode()
 */
 shared_ptr<TreeNode> TreeNode::nextGeneration()
 {
+
+    // Look there
+
     /*try
     {
-        return make_shared<TreeNode>(hashMap.at(*make_shared<TreeNode>(this)));
+        return hashMap.at(make_shared<TreeNode>(this));
     }
     catch(const out_of_range& oor)
     {*/
@@ -309,7 +312,7 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
         }
         if (level == 2)
         {
-            return /*make_shared<TreeNode>(hashMap[*make_shared<TreeNode>(this)] = **/slowSimulation()/*)*/;
+            return /*hashMap[make_shared<TreeNode>(this)] = */slowSimulation();
         }
         shared_ptr<TreeNode> n00 = nw->centeredSubnode(),
         n01 = centeredHorizontal(nw, ne),
@@ -320,12 +323,11 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
         n20 = sw->centeredSubnode(),
         n21 = centeredHorizontal(sw, se),
         n22 = se->centeredSubnode();
-
-        return /*make_shared<TreeNode>(hashMap[*make_shared<TreeNode>(this)] = **/make_shared<TreeNode>(
-                                       make_shared<TreeNode>(n00, n01, n10, n11)->nextGeneration(),
-                                       make_shared<TreeNode>(n01, n02, n11, n12)->nextGeneration(),
-                                       make_shared<TreeNode>(n10, n11, n20, n21)->nextGeneration(),
-                                       make_shared<TreeNode>(n11, n12, n21, n22)->nextGeneration())/*)*/;
+        return /*hashMap[make_shared<TreeNode>(this)] = */make_shared<TreeNode>(
+                    make_shared<TreeNode>(n00, n01, n10, n11)->nextGeneration(),
+                    make_shared<TreeNode>(n01, n02, n11, n12)->nextGeneration(),
+                    make_shared<TreeNode>(n10, n11, n20, n21)->nextGeneration(),
+                    make_shared<TreeNode>(n11, n12, n21, n22)->nextGeneration());
     /*}*/
 }
 
@@ -481,35 +483,36 @@ bool TreeNode::isAlive() const
     return alive;
 }
 
-size_t hash_func(const TreeNode& t)
+size_t hash_func(shared_ptr<TreeNode> t)
 {
-    if(t.getLevel() == 0)
+    if(t->getLevel() == 0)
     {
-        return t.getPopulation();
+        return t->getPopulation();
     }
     else
     {
-        return hash_func(*t.getnw()) +
-               11 * hash_func(*t.getne()) +
-               101 * hash_func(*t.getsw()) +
-               1007 * hash_func(*t.getse());
+        return hash_func(t->getnw()) +
+               11 * hash_func(t->getne()) +
+               101 * hash_func(t->getsw()) +
+               1007 * hash_func(t->getse());
     }
 }
 
 
-bool equals(const TreeNode& arg1, const TreeNode& arg2)
+bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
 {
-    if(arg1.getLevel() != arg2.getLevel())
+    if(arg1->getLevel() != arg2->getLevel())
     {
         return false;
     }
-    if(arg1.getLevel() == 0)
+    if(arg1->getLevel() == 0)
     {
-        return arg1.isAlive() == arg2.isAlive();
+        return arg1->isAlive() == arg2->isAlive();
     }
-    return equals(*arg1.getnw(), *arg2.getnw()) &&
-           equals(*arg1.getne(), *arg2.getne()) &&
-           equals(*arg1.getsw(), *arg2.getsw()) &&
-           equals(*arg1.getse(), *arg2.getse());
+    return equals(arg1->getnw(), arg2->getnw()) &&
+           equals(arg1->getne(), arg2->getne()) &&
+           equals(arg1->getsw(), arg2->getsw()) &&
+           equals(arg1->getse(), arg2->getse());
 
 }
+

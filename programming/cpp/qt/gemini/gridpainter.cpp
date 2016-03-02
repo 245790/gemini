@@ -132,7 +132,7 @@ void GridPainter::parsePlainText(const QString &fileName)
     grid.parsePlainText(fileName);
     //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
     //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    drawingPosition = *(new QPoint(0, 0));
+    drawingPosition = *(new QPoint(4 * scale * grid.getWidth() / 2, 0));
 }
 
 void GridPainter::parseRLE(const QString &fileName)
@@ -141,7 +141,7 @@ void GridPainter::parseRLE(const QString &fileName)
     grid.parseRLE(fileName);
     //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
     //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    drawingPosition = *(new QPoint(0, 0));
+    drawingPosition = *(new QPoint(4 * scale * grid.getWidth() / 2, 0));
 }
 
 void GridPainter::initRandom(int width, int height)
@@ -149,8 +149,7 @@ void GridPainter::initRandom(int width, int height)
     stopped = true;
     grid.clear();
     grid.initRandom(width, height);
-    drawingPosition.setX(4 * scale * grid.getWidth() / 2);
-    drawingPosition.setY(4 * scale * grid.getHeight() / 2);
+    drawingPosition = *(new QPoint(0, 0));
 }
 
 bool GridPainter::isStopped()

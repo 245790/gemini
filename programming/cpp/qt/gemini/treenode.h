@@ -1,9 +1,3 @@
-/* KPCC
- * TreeNode is a 4-nary tree that represents a celluar automaton
- * Author: Safin Karim
- * Date: 2015.10.01
- */
-
 #ifndef TREENODE_H
 #define TREENODE_H
 
@@ -16,9 +10,7 @@ using namespace std;
 class TreeNode
 {
 public:
-    /**
-     * @brief construct a dead leaf cell
-     */
+
     TreeNode();
 
     /**
@@ -196,12 +188,13 @@ private:
 
 
 // Hash function for TreeNode
-size_t hash_func(const TreeNode& t);
+size_t hash_func(shared_ptr<TreeNode> t);
 
 // Function that compares two TreeNodes by their content
-bool equals(const TreeNode &arg1, const TreeNode& arg2);
+bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 
 //stores nextGeneration values
-static unordered_map<TreeNode, TreeNode, decltype(&hash_func), decltype(&equals)> hashMap(100, hash_func, equals);
+static unordered_map<shared_ptr<TreeNode>, shared_ptr<TreeNode>, decltype(&hash_func), decltype(&equals)> hashMap(100, hash_func, equals);
 
 #endif // TREENODE_H
+

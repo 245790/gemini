@@ -239,9 +239,17 @@ void UserInterface::openRleFile()
     {
         stopButtonPressed();
     }
-    gridPainter->parseRLE(QFileDialog::getOpenFileName(this,
-                                                       tr("Open RLE file")));
+
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("Open RLE file"));
+
+    gridPainter->parseRLE(fileName);
+
+    gridPainter->rotateClockwise(); // There is a bug in parsing programs, fixed by rotation
+
     gridPainter->update();
+
+    setWindowTitle(fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1) + tr(" - Conway's game of Life"));
 }
 
 void UserInterface::openPlainTextFile()
@@ -250,10 +258,16 @@ void UserInterface::openPlainTextFile()
     {
         stopButtonPressed();
     }
-    gridPainter->parsePlainText(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Open plain text file")));
+
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                  tr("Open plain text file"));
+    gridPainter->parsePlainText(fileName);
+
+    gridPainter->rotateClockwise(); // There is a bug in parsing programs, fixed by rotation
+
     gridPainter->update();
+
+    setWindowTitle(fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1) + tr(" - Conway's game of Life"));
 }
 
 void UserInterface::initRandom()
