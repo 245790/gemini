@@ -1,7 +1,7 @@
  /* KPCC
  * TreeNode is a 4-nary tree that represents a celluar automaton
  * Author: Safin Karim
- * Date: 2016.02.27
+ * Date: 2015.10.15
  */
 
 #include <memory>
@@ -515,4 +515,3 @@ bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
            equals(arg1->getse(), arg2->getse());
 
 }
-

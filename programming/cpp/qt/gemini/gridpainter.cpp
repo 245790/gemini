@@ -1,4 +1,4 @@
-/* KPCC
+﻿/* KPCC
  * GridPainter is a widget able to draw Grids
  * Author: Safin Karim, Alexandra Balyuk
  * Date: 2015.09.05
@@ -21,16 +21,13 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 
     mousePressed = false;
 
-    scale = 1;
+    grid.initEmptyGrid(10, 10);
 
-    drawingPosition = QPoint(4 * scale * grid.getWidth() / 2, 4 * scale * grid.getHeight() / 2);
+    autoFitDrawingPoints();
 
     cellColor = QColor(0, 0, 0);
     spaceColor = QColor(240, 240, 240);
     gridColor = QColor(230, 230, 230);
-
-    cellPen = QPen(cellColor);
-    cellPen.setStyle(Qt::NoPen);
     
     cellBrush.setColor(cellColor);
     cellBrush.setStyle(Qt::SolidPattern);
@@ -38,8 +35,7 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
     gridPen.setColor(gridColor);
     gridPen.setStyle(Qt::SolidLine);
 
-    spaceBrush.setColor(QColor(250, 250, 250));
-    spaceBrush.setStyle(Qt::SolidPattern);
+    mouseScrollSensitivity = 1.1;
 
     setMouseMode(MOVING);
 
@@ -49,11 +45,66 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
     currentErasingIndex = 0;
 }
 
+void GridPainter::autoFitDrawingPoints()
+{
+    topLeftDrawingPosition = QPoint(0, 0);
+    if(this->width() > this->height())
+    {
+        // wholeWidth is such a width of a field that all the cells have whole width
+        int wholeWidth = this->height() / grid.getWidth() * grid.getWidth();
+        bottomRightDrawingPosition = QPoint(wholeWidth, wholeWidth);
+    }
+    else
+    {
+        int wholeWidth = this->width() / grid.getWidth() * grid.getWidth();
+        bottomRightDrawingPosition = QPoint(wholeWidth, wholeWidth);
+    }
+}
+
+void GridPainter::preventResizing(int prevGridWidth, int currentGridWidth, int prevFieldWidth)
+{
+    if(prevGridWidth != currentGridWidth) // prevent unneeded resizing
+    {
+        int prevWidth = bottomRightDrawingPosition .x() - topLeftDrawingPosition.x();
+        if(prevGridWidth < currentGridWidth)
+        {
+            topLeftDrawingPosition.setX(topLeftDrawingPosition.x() -
+                                        prevFieldWidth / 2);
+            topLeftDrawingPosition.setY(topLeftDrawingPosition.y() -
+                                        prevFieldWidth / 2);
+            bottomRightDrawingPosition.setX(bottomRightDrawingPosition.x() +
+                                            prevFieldWidth / 2);
+            bottomRightDrawingPosition.setY(bottomRightDrawingPosition.y() +
+                                            prevFieldWidth / 2);
+
+        }
+        else
+        {
+            topLeftDrawingPosition.setX(topLeftDrawingPosition.x() +
+                                        prevFieldWidth / 4);
+            topLeftDrawingPosition.setY(topLeftDrawingPosition.y() +
+                                        prevFieldWidth / 4);
+            bottomRightDrawingPosition.setX(bottomRightDrawingPosition.x() -
+                                            prevWidth / 4);
+            bottomRightDrawingPosition.setY(bottomRightDrawingPosition.y() -
+                                            prevWidth / 4);
+
+        }
+
+    }
+}
+
 void GridPainter::animate()
 {
     if(!stopped)
     {
+        int prevGridWidth = grid.getWidth();
         grid.update();
+        int currentGridWidth = grid.getWidth();
+        preventResizing(prevGridWidth,
+                        currentGridWidth,
+                        bottomRightDrawingPosition.x() - topLeftDrawingPosition.x());
+
         update();
     }
 }
@@ -85,7 +136,12 @@ void GridPainter::nextGeneration()
 {
     if(stopped)
     {
+        int prevGridWidth = grid.getWidth();
         grid.update();
+        int currentGridWidth = grid.getWidth();
+        preventResizing(prevGridWidth,
+                        currentGridWidth,
+                        bottomRightDrawingPosition.x() - topLeftDrawingPosition.x());
         update();
     }
 }
@@ -95,19 +151,17 @@ void GridPainter::setCellColor(QColor cc)
     cellColor = cc;
 
     cellBrush.setColor(cellColor);
-    cellPen.setColor(cellColor);
 }
 
 void GridPainter::setSpaceColor(QColor sc)
 {
     spaceColor = sc;
-
-    spaceBrush.setColor(spaceColor);
 }
 
 void GridPainter::setGridColor(QColor gc)
 {
     gridColor = gc;
+
     gridPen.setColor(gridColor);
 }
 
@@ -130,18 +184,14 @@ void GridPainter::parsePlainText(const QString &fileName)
 {
     stopped = true;
     grid.parsePlainText(fileName);
-    //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
-    //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    drawingPosition = *(new QPoint(4 * scale * grid.getWidth() / 2, 0));
+    autoFitDrawingPoints();
 }
 
 void GridPainter::parseRLE(const QString &fileName)
 {
     stopped = true;
     grid.parseRLE(fileName);
-    //drawingPosition.setX(4 * scale * grid.getWidth() / 2);
-    //drawingPosition.setY(4 * scale * grid.getHeight() / 2);
-    drawingPosition = *(new QPoint(4 * scale * grid.getWidth() / 2, 0));
+    autoFitDrawingPoints();
 }
 
 void GridPainter::initRandom(int width, int height)
@@ -149,7 +199,7 @@ void GridPainter::initRandom(int width, int height)
     stopped = true;
     grid.clear();
     grid.initRandom(width, height);
-    drawingPosition = *(new QPoint(0, 0));
+    autoFitDrawingPoints();
 }
 
 bool GridPainter::isStopped()
@@ -217,36 +267,39 @@ void GridPainter::paintEvent(QPaintEvent *event)
     painter->begin(this);
     
     painter->fillRect(event->rect(), Qt::white);
+
+    painter->fillRect(QRect(topLeftDrawingPosition, bottomRightDrawingPosition), spaceColor);
+
     painter->setBrush(cellBrush);
-    painter->setPen(cellPen);
 
-    cellWidth = 4 * scale;
-
-    int width = grid.getWidth() * cellWidth;
-
-    painter->fillRect(drawingPosition.x() - width / 2, drawingPosition.y() - width / 2, width, width, spaceBrush);
+    int fieldWidth = (bottomRightDrawingPosition.x() - topLeftDrawingPosition.x());
 
     painter->save();
-    grid.draw(painter, drawingPosition.x(), drawingPosition.y(), grid.getWidth() * cellWidth);
+    grid.draw(painter,
+              topLeftDrawingPosition.x() + fieldWidth / 2,
+              topLeftDrawingPosition.y() + fieldWidth / 2,
+              fieldWidth);
+
+    int cellWidth = fieldWidth / grid.getWidth();
     if(cellWidth > 3)
     {
         painter->setPen(gridPen);
-        for(int i = drawingPosition.x() - width / 2;
-                i < drawingPosition.x() + width / 2;
+        for(int i = topLeftDrawingPosition.x();
+                i < bottomRightDrawingPosition.x();
                 i += cellWidth)
         {
             painter->drawLine(i,
-                              drawingPosition.y() - width / 2,
+                              topLeftDrawingPosition.y(),
                               i,
-                              drawingPosition.y() + width / 2);
+                              bottomRightDrawingPosition.y());
         }
-        for(int i = drawingPosition.y() - width / 2;
-                i < drawingPosition.y() + width / 2;
+        for(int i = topLeftDrawingPosition.y();
+                i < bottomRightDrawingPosition.y();
                 i += cellWidth)
         {
-            painter->drawLine(drawingPosition.x() - width / 2,
+            painter->drawLine(topLeftDrawingPosition.x(),
                               i,
-                              drawingPosition.x() + width / 2,
+                              bottomRightDrawingPosition.x(),
                               i);
         }
     }
@@ -275,22 +328,54 @@ void GridPainter::wheelEvent(QWheelEvent *event)
 
             if (event->orientation() == Qt::Vertical)
             {
-                scale *= 1.1f;
+                int cellWidth = (bottomRightDrawingPosition.x() - topLeftDrawingPosition.x()) / grid.getWidth();
+                int leftPart = (event->pos().x() - topLeftDrawingPosition.x()) * mouseScrollSensitivity;
+                leftPart -= leftPart % cellWidth;
+                int rightPart = (bottomRightDrawingPosition.x() - event->pos().x()) * mouseScrollSensitivity;
+                rightPart -= rightPart % cellWidth;
+                int topPart = (event->pos().y() - topLeftDrawingPosition.y()) * mouseScrollSensitivity;
+                topPart -= topPart % cellWidth;
+                int bottomPart = (bottomRightDrawingPosition.y() - event->pos().y()) * mouseScrollSensitivity;
+                bottomPart -= bottomPart % cellWidth;
+
+                topLeftDrawingPosition.setX(event->pos().x() - leftPart);
+                topLeftDrawingPosition.setY(event->pos().y() - topPart);
+                bottomRightDrawingPosition.setX(event->pos().x() + rightPart);
+                bottomRightDrawingPosition.setY(event->pos().y() + bottomPart);
             }
         }
-        else
+        /*else
         {
             if (event->delta() < 0)
             {
                 if (event->orientation() == Qt::Vertical)
                 {
-                    if(scale / 1.1 > 0.25)
-                    {
-                        scale /= 1.1f;
-                    }
+                    // how wide is the field now
+                    int currentWidth = bottomRightDrawingPosition.x() -
+                                       topLeftDrawingPosition.x();
+                    // how wide is it going to be after scrolling
+                    // * grid.getWidth() / grid.getWidth() guarantees that every cell has whole width
+                    int newWidth = currentWidth / mouseScrollSensitivity * grid.getWidth() / grid.getWidth();
+                    // how many pixels do i need to substract from topLeftDrawing.x
+                    int leftPart = (event->pos().x() - topLeftDrawingPosition.x()) * (mouseScrollSensitivity - 1);
+                    // y
+                    int rightPart = currentWidth - leftPart - newWidth;
+                    // bottom right x
+                    int topPart = (event->pos().y() - topLeftDrawingPosition.y()) * (mouseScrollSensitivity - 1);
+                    // y
+                    int bottomPart = newWidth - topPart - currentWidth;
+
+                    topLeftDrawingPosition.setX(topLeftDrawingPosition.x() +
+                                                leftPart);
+                    topLeftDrawingPosition.setY(topLeftDrawingPosition.y() +
+                                                topPart);
+                    bottomRightDrawingPosition.setX(bottomRightDrawingPosition.x() -
+                                                    rightPart);
+                    bottomRightDrawingPosition.setY(bottomRightDrawingPosition.y() -
+                                                    bottomPart);
                 }
             }
-        }
+        }*/
     break;
     break;
     }
@@ -307,7 +392,7 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
             update();
         }
     break;
-    case DRAWING:
+    /*case DRAWING:
         if (event->button() == Qt::LeftButton)
         {
             update();
@@ -349,6 +434,7 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
             }
         }
     break;
+    */
     }
     mousePosition.setX(event->pos().x());
     mousePosition.setY(event->pos().y());
@@ -361,16 +447,20 @@ void GridPainter::mouseMoveEvent(QMouseEvent *event)
     case MOVING:
         if ((event->buttons() & Qt::LeftButton))
         {
-            drawingPosition.setX(drawingPosition.x() + event->pos().x() - mousePosition.x());
-            drawingPosition.setY(drawingPosition.y() + event->pos().y() - mousePosition.y());
+            topLeftDrawingPosition.setX(topLeftDrawingPosition.x() + event->pos().x() - mousePosition.x());
+            topLeftDrawingPosition.setY(topLeftDrawingPosition.y() + event->pos().y() - mousePosition.y());
+
+            bottomRightDrawingPosition.setX(bottomRightDrawingPosition.x() + event->pos().x() - mousePosition.x());
+            bottomRightDrawingPosition.setY(bottomRightDrawingPosition.y() + event->pos().y() - mousePosition.y());
         }
     break;
+        /*
     case DRAWING:
         // it is easier to draw only on clicks
     break;
     case ERASING:
-        /*if (event->button() == Qt::LeftButton)
-        {*/
+        if (event->button() == Qt::LeftButton)
+        {
             update();
             int xPosition = (event->pos().x() - drawingPosition.x()) / cellWidth;
             int yPosition = (event->pos().y() - drawingPosition.y()) / cellWidth;
@@ -387,12 +477,14 @@ void GridPainter::mouseMoveEvent(QMouseEvent *event)
                     }
                 }
             }
-        /*}*/
+        }
     break;
+    */
     }
     mousePosition.setX(event->pos().x());
     mousePosition.setY(event->pos().y());
     update();
+
 }
 
 void GridPainter::mouseReleaseEvent(QMouseEvent *event)
@@ -401,8 +493,11 @@ void GridPainter::mouseReleaseEvent(QMouseEvent *event)
     mousePosition.setY(event->pos().y());
     if (event->buttons() & Qt::LeftButton)
     {
-        drawingPosition.setX(drawingPosition.x() + event->pos().x() - mousePosition.x());
-        drawingPosition.setY(drawingPosition.y() + event->pos().y() - mousePosition.y());
+        topLeftDrawingPosition.setX(topLeftDrawingPosition.x() + event->pos().x() - mousePosition.x());
+        topLeftDrawingPosition.setY(topLeftDrawingPosition.y() + event->pos().y() - mousePosition.y());
+
+        bottomRightDrawingPosition.setX(bottomRightDrawingPosition.x() + event->pos().x() - mousePosition.x());
+        bottomRightDrawingPosition.setY(bottomRightDrawingPosition.y() + event->pos().y() - mousePosition.y());
         update();
     }
 }

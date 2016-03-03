@@ -1,3 +1,9 @@
+/* KPCC
+* TreeNode is a 4-nary tree that represents a celluar automaton
+* Author: Safin Karim
+* Date: 2015.10.15
+*/
+
 #ifndef TREENODE_H
 #define TREENODE_H
 
@@ -197,4 +203,3 @@ bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 static unordered_map<shared_ptr<TreeNode>, shared_ptr<TreeNode>, decltype(&hash_func), decltype(&equals)> hashMap(100, hash_func, equals);
 
 #endif // TREENODE_H
-

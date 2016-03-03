@@ -7,21 +7,17 @@
 #ifndef GRIDPAINTER
 #define GRIDPAINTER
 
+#include <QBrush>
 #include <QMouseEvent>
 #include <QOpenGLWidget>
+#include <QPaintEvent>
 #include <QPen>
+#include <QColor>
 #include <QVector>
 #include <QWheelEvent>
+#include <QWidget>
 
 #include "grid.h"
-
-QT_BEGIN_NAMESPACE
-class QColor;
-class QPaintEvent;
-class QWidget;
-class QPen;
-class QBrush;
-QT_END_NAMESPACE
 
 enum MOUSE_MODE
 {
@@ -34,32 +30,37 @@ class GridPainter : public QOpenGLWidget
 {
     Q_OBJECT
 private:
-    Grid grid;
+    Grid grid;                // grid with cells
 
-    QVector<Grid> painting; // patterns that we paint with
+    QVector<Grid> painting;   // patterns that we paint with
     int currentPaintingIndex; // exact pattern used for drawing
-    QVector<Grid> erasing; // patterns that we erase with
-    int currentErasingIndex; // exact pattern used for drawing
+    QVector<Grid> erasing;    // patterns that we erase with
+    int currentErasingIndex;  // exact pattern used for drawing
 
-    bool stopped; // true if the field is updating
+    bool stopped;             // true if the field is updating continuously
     
-    QColor cellColor; // color of a living cell
-    QColor spaceColor; // color of a dead cel;
-    QColor gridColor; // color of a grid
+    QColor cellColor;         // color of a living cell
+    QColor spaceColor;        // color of a dead cel;
+    QColor gridColor;         // color of a grid
     
-    QBrush cellBrush;
-    QBrush spaceBrush;
-    
-    QPen cellPen;
+    QBrush cellBrush;         // brush used to paint cells(plain, spaceColor)
 
-    QPen gridPen;
+    QPen gridPen;             // pen for drawing grid (has gridColor)
 
-    float scale; // 0.25 means that a cell is 1 pixel wide; cannot be less
+    double mouseScrollSensitivity; // field increases in size (mouseScrollSensitivity) times after each scroll
 
-    int cellWidth; // width of a cell, pixels
+    QPoint topLeftDrawingPosition;
+    QPoint bottomRightDrawingPosition;
+    // The entire field is being drawn between this two points
 
-    QPoint drawingPosition; // center of a field. It is being drawn "around" this point
-    QPoint mousePosition; // position of a mouse; we need to store it so as to draw/move
+    // Does its best to fit the entire field in the screen
+    void autoFitDrawingPoints();
+
+    // If the grid chaged its size after updating, then two drawing points
+    // change their positions so that the cell remains the same size
+    void preventResizing(int prevGridWidth, int currentGridWidth, int prevFieldWidth);
+
+    QPoint mousePosition; // position of a mouse; we need to store it to draw/move
 
     bool mousePressed;
 
@@ -110,4 +111,3 @@ protected:
 };
 
 #endif // GRIDPAINTER
-
