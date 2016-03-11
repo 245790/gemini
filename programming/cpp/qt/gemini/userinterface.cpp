@@ -391,5 +391,4 @@ void UserInterface::keyPressEvent(QKeyEvent * event)
 
 UserInterface::~UserInterface()
 {
-
 }

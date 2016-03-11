@@ -84,6 +84,7 @@ void Grid::parsePlainText(const QString &fileName)
             }
         }
     }
+    file.close();
 }
 
 void Grid::parseRLE(const QString &fileName)
@@ -154,6 +155,7 @@ void Grid::parseRLE(const QString &fileName)
             }
         }
     }
+    file.close();
 }
 
 void Grid::clear()
