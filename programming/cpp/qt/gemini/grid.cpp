@@ -31,18 +31,13 @@ void Grid::initEmptyGrid(int width, int height)
 
 void Grid::initRandom(int width, int height)
 {
-    //initEmptyGrid(width, height);
-    for(int i = 0; i < height; i++)
+    for(int i = - height / 2; i < height / 2; i++)
     {
-        for(int j = 0; j < width; j++)
+        for(int j = - width / 2; j < width / 2; j++)
         {
             if(qrand() % 2 == 0)
             {
-                while(i >= getWidth() / 2 || j >= getWidth() / 2)
-                {
-                    root = root->expandUniverse();
-                }
-                root = root->setBit(i, j);
+                this->setAlive(i, j, true);
             }
         }
     }
@@ -62,25 +57,30 @@ void Grid::parsePlainText(const QString &fileName)
     }
     while(currentString[0] == '!');
 
-    QString lineOfBody = currentString; //that is, the first row of cells
+    QString lineOfBody = currentString; // that is, the first row of cells
 
     QVector<QString> body;
 
     body.push_back(lineOfBody);
+    int maxWidth = lineOfBody.length(); // width of a pattern
 
     while(!fin.atEnd())
     {
         lineOfBody = fin.readLine();
         body.push_back(lineOfBody);
+        if(maxWidth < lineOfBody.length())
+        {
+            maxWidth = lineOfBody.length();
+        }
     }
 
     for(int i = 0; i < body.size(); i++)
     {
-        for(unsigned int j = 0; j < body[i].length(); j++)
+        for(int j = 0; j < body[i].length(); j++)
         {
             if(body[i][j] != '.')
             {
-                this->setAlive(i, j, true);
+                this->setAlive(i - body.size() / 2, j - maxWidth / 2, true);
             }
         }
     }
@@ -103,7 +103,7 @@ void Grid::parseRLE(const QString &fileName)
         {
             continue; // We do not care of comment lines
         }
-        for(unsigned int i = 0; i < inputLine.length(); i++)
+        for(int i = 0; i < inputLine.length(); i++)
         {
             QChar c = inputLine[i];
             int param = (paramArgument == 0 ? 1 : paramArgument);
@@ -155,6 +155,8 @@ void Grid::parseRLE(const QString &fileName)
             }
         }
     }
+    // move the pattern to the center
+    root = root.get()->getse();
     file.close();
 }
 

@@ -17,7 +17,8 @@ SOURCES += main.cpp\
         userinterface.cpp \
     grid.cpp \
     gridpainter.cpp \
-    propertieswindow.cpp
+    propertieswindow.cpp \
+    treenode.cpp
 
 HEADERS  += userinterface.h \
     grid.h \
