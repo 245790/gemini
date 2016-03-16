@@ -84,6 +84,12 @@ void UserInterface::createActions()
     setGridColorAct = new QAction(tr("Set &grid color"), this);
     connect(setGridColorAct, SIGNAL(triggered()), this, SLOT(setGridColor()));
 
+    chooseWhiteThemeAct = new QAction(tr("Choose &white theme"), this);
+    connect(chooseWhiteThemeAct, SIGNAL(triggered()), this, SLOT(chooseWhiteTheme()));
+
+    chooseBlackThemeAct = new QAction(tr("Choose &black theme"), this);
+    connect(chooseBlackThemeAct, SIGNAL(triggered()), this, SLOT(chooseBlackTheme()));
+
     setUpdateRateAct = new QAction(tr("Set re&fresh rate"), this);
     connect(setUpdateRateAct, SIGNAL(triggered()), this, SLOT(setUpdateRate()));
 
@@ -107,6 +113,9 @@ void UserInterface::createMenus()
     viewMenu->addAction(setCellColorAct);
     viewMenu->addAction(setSpaceColorAct);
     viewMenu->addAction(setGridColorAct);
+    viewMenu->addSeparator();
+    viewMenu->addAction(chooseWhiteThemeAct);
+    viewMenu->addAction(chooseBlackThemeAct);
     viewMenu->addSeparator();
     viewMenu->addAction(setUpdateRateAct);
 
@@ -219,6 +228,22 @@ void UserInterface::setGridColor()
     gridPainter->setGridColor(QColorDialog::getColor(Qt::white,
                                                     this,
                                                     "Select grid color"));
+    gridPainter->update();
+}
+
+void UserInterface::chooseWhiteTheme()
+{
+    gridPainter->setCellColor(QColor(0, 0, 0));
+    gridPainter->setSpaceColor(QColor(240, 240, 240));
+    gridPainter->setGridColor(QColor(230, 230, 230));
+    gridPainter->update();
+}
+
+void UserInterface::chooseBlackTheme()
+{
+    gridPainter->setCellColor(QColor(255, 255, 255));
+    gridPainter->setSpaceColor(QColor(0, 0, 0));
+    gridPainter->setGridColor(QColor(64, 64, 64));
     gridPainter->update();
 }
 

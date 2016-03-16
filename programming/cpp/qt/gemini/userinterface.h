@@ -37,6 +37,8 @@ private slots:
     void setCellColor();
     void setSpaceColor();
     void setGridColor();
+    void chooseWhiteTheme();
+    void chooseBlackTheme();
     void setUpdateRate();
     void openRleFile();
     void openPlainTextFile();
@@ -63,6 +65,8 @@ private:
     QAction *setSpaceColorAct;
     QAction *setGridColorAct;
     QAction *setUpdateRateAct;
+    QAction *chooseWhiteThemeAct;
+    QAction *chooseBlackThemeAct;
     QAction *initRandomAct;
     QAction *openRleFileAct;
     QAction *openPlainTextFileAct;
