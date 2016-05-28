@@ -188,11 +188,18 @@ public:
      */
     int bottomBoundary() const;
 
+    /**
+     * @brief Hash value of this node
+     * @return hash value
+     */
+    uint hash() const;
+
 private:
 
-    long population; //number of living cells
     bool alive; //if this is a leaf node, is it alive?
                 //if nonleaf, does it have any living cells?
+    long population; //number of living cells
+    uint hashValue;
     int level; //distance to the root
     shared_ptr<TreeNode> nw, ne, sw, se; //children
     static QHash<shared_ptr<TreeNode>, shared_ptr<TreeNode> > hashMap;
@@ -243,17 +250,9 @@ private:
 
 
 // Hash function for TreeNode
-size_t hash_func(shared_ptr<TreeNode> t);
 uint qHash(shared_ptr<TreeNode> t);
 
 // Function that compares two TreeNodes by their content
-bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 bool operator==(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
-
-//stores nextGeneration values
-/*static unordered_map<shared_ptr<TreeNode>,
-                     shared_ptr<TreeNode>,
-                     decltype(&hash_func),
-                     decltype(&equals)> hashMap(100, hash_func, equals);*/
 
 #endif // TREENODE_H
