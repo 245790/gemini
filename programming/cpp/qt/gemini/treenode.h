@@ -11,11 +11,12 @@
 #include <limits>
 #include <memory>
 #include <unordered_map>
+#include <QHash>
 #include <QPainter>
 
 using namespace std;
 
-class TreeNode
+class TreeNode : public enable_shared_from_this<TreeNode>
 {
 public:
 
@@ -194,6 +195,7 @@ private:
                 //if nonleaf, does it have any living cells?
     int level; //distance to the root
     shared_ptr<TreeNode> nw, ne, sw, se; //children
+    static QHash<shared_ptr<TreeNode>, shared_ptr<TreeNode> > hashMap;
 
     /**
     *   Given an integer with a bitmask indicating which bits are
@@ -242,14 +244,16 @@ private:
 
 // Hash function for TreeNode
 size_t hash_func(shared_ptr<TreeNode> t);
+uint qHash(shared_ptr<TreeNode> t);
 
 // Function that compares two TreeNodes by their content
 bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
+bool operator==(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 
 //stores nextGeneration values
-static unordered_map<shared_ptr<TreeNode>,
+/*static unordered_map<shared_ptr<TreeNode>,
                      shared_ptr<TreeNode>,
                      decltype(&hash_func),
-                     decltype(&equals)> hashMap(100, hash_func, equals);
+                     decltype(&equals)> hashMap(100, hash_func, equals);*/
 
 #endif // TREENODE_H

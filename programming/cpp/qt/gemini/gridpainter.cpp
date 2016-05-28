@@ -430,7 +430,7 @@ void GridPainter::paintEvent(QPaintEvent *event)
         if (mode == ERASING)
         {
             // draw the pattern that is about to be erased with
-            painter->setBrush(QBrush(spaceColor));
+            painter->setBrush(QBrush(gridColor));
             float erasingWidth = erasing[currentErasingIndex].getWidth()
                                       * cellWidth;
             erasing[currentErasingIndex].draw(painter,

@@ -13,6 +13,7 @@
 
 using namespace std;
 
+QHash<shared_ptr<TreeNode>, shared_ptr<TreeNode> > TreeNode::hashMap;
 
 TreeNode::TreeNode()
 {
@@ -354,6 +355,14 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
     }
     catch(const out_of_range& oor)
     {*/
+    shared_ptr<TreeNode> result = hashMap.value(shared_from_this(),
+                                                nullptr);
+    if (result != nullptr)
+    {
+        return result;
+    }
+    else
+    {
         // skip empty regions quickly
         if (population == 0)
         {
@@ -361,7 +370,7 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
         }
         if (level == 2)
         {
-            return /*hashMap[make_shared<TreeNode>(this)] = */slowSimulation();
+            return hashMap[shared_from_this()] = slowSimulation();
         }
         shared_ptr<TreeNode> n00 = nw->centeredSubnode(),
         n01 = centeredHorizontal(nw, ne),
@@ -372,11 +381,12 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
         n20 = sw->centeredSubnode(),
         n21 = centeredHorizontal(sw, se),
         n22 = se->centeredSubnode();
-        return /*hashMap[make_shared<TreeNode>(this)] = */make_shared<TreeNode>(
-                    make_shared<TreeNode>(n00, n01, n10, n11)->nextGeneration(),
-                    make_shared<TreeNode>(n01, n02, n11, n12)->nextGeneration(),
-                    make_shared<TreeNode>(n10, n11, n20, n21)->nextGeneration(),
-                    make_shared<TreeNode>(n11, n12, n21, n22)->nextGeneration());
+        return hashMap[shared_from_this()] = make_shared<TreeNode>(
+                   make_shared<TreeNode>(n00, n01, n10, n11)->nextGeneration(),
+                   make_shared<TreeNode>(n01, n02, n11, n12)->nextGeneration(),
+                   make_shared<TreeNode>(n10, n11, n20, n21)->nextGeneration(),
+                   make_shared<TreeNode>(n11, n12, n21, n22)->nextGeneration());
+    }
     /*}*/
 }
 
@@ -444,7 +454,7 @@ shared_ptr<TreeNode> TreeNode::rotateClockwise()
 {
     if(this->level == 0) // a leaf node
     {
-        return make_shared<TreeNode>(this); // Then a rotation has no effect. We
+        return shared_from_this(); // Then a rotation has no effect. We
                                             // do not rotate leaf nodes
     }
     if(this->level == 1)
@@ -469,7 +479,7 @@ shared_ptr<TreeNode> TreeNode::rotateAntiClockwise()
 {
     if(this->level == 0) // a leaf node
     {
-        return make_shared<TreeNode>(this); // Then a rotation has no effect. We
+        return shared_from_this(); // Then a rotation has no effect. We
                                             // do not rotate leaf nodes
     }
     if(this->level == 1)
@@ -707,6 +717,22 @@ size_t hash_func(shared_ptr<TreeNode> t)
 }
 
 
+uint qHash(shared_ptr<TreeNode> t)
+{
+    if(t->getLevel() == 0)
+    {
+        return t->getPopulation();
+    }
+    else
+    {
+        return qHash(t->getnw()) +
+               11 * qHash(t->getne()) +
+               101 * qHash(t->getsw()) +
+               1007 * qHash(t->getse());
+    }
+}
+
+
 bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
 {
     if(arg1->getLevel() != arg2->getLevel())
@@ -722,4 +748,21 @@ bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
            equals(arg1->getsw(), arg2->getsw()) &&
            equals(arg1->getse(), arg2->getse());
 
+}
+
+
+bool operator==(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
+{
+    if(arg1->getLevel() != arg2->getLevel())
+    {
+        return false;
+    }
+    if(arg1->getLevel() == 0)
+    {
+        return arg1->isAlive() == arg2->isAlive();
+    }
+    return arg1->getnw() == arg2->getnw() &&
+           arg1->getne() == arg2->getne() &&
+           arg1->getsw() == arg2->getsw() &&
+           arg1->getse() == arg2->getse();
 }
