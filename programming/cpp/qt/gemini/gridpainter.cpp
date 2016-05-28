@@ -20,7 +20,7 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 {
     stopped = true;
 
-    grid.initEmptyGrid(10, 10);
+    grid.initEmptyGrid(100, 100);
 
     topLeftDrawingPosition = QPoint(0, 0);
 
