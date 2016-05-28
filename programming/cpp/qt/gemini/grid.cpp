@@ -5,6 +5,7 @@
  */
 
 #include <fstream>
+#include <limits>
 #include <math.h>
 #include <QDebug>
 #include <QFile>
@@ -19,12 +20,7 @@ Grid::Grid()
 void Grid::initEmptyGrid(int width, int height)
 {
     int maxDimension = width > height ? width : height;
-    int i = 0; // minimum power of 2 that exceeds maxDimension
-    do
-    {
-        i++;
-    }
-    while(maxDimension > 1 << i);
+    int i = ceil(log2(maxDimension));
     root = root->emptyTree(i);
     generationCount = 0;
 }
@@ -44,12 +40,15 @@ void Grid::initRandom(int width, int height)
     generationCount = 0;
 }
 
-void Grid::parsePlainText(const QString &fileName)
+bool Grid::parsePlainText(const QString &fileName)
 {
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream fin(&file);
     this->clear();
+
+    bool success = true;
+
     QString currentString;
     do
     {
@@ -72,6 +71,23 @@ void Grid::parsePlainText(const QString &fileName)
         {
             maxWidth = lineOfBody.length();
         }
+        if (maxWidth > 3000) // too big pattern; probably an error
+        {
+            success = false;
+            break;
+        }
+        if (body.length() > 3000) // too big pattern; probably an error
+        {
+            success = false;
+            break;
+        }
+    }
+
+    file.close();
+
+    if (!success)
+    {
+        return false;
     }
 
     for(int i = 0; i < body.size(); i++)
@@ -84,22 +100,27 @@ void Grid::parsePlainText(const QString &fileName)
             }
         }
     }
-    file.close();
+
+    return success; // that is, true
 }
 
-void Grid::parseRLE(const QString &fileName)
+bool Grid::parseRLE(const QString &fileName)
 {
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream fin(&file);
     this->clear();
+    this->initEmptyGrid(5, 5);
     QString inputLine;
     int x = 0, y = 0;      // current location
     int paramArgument = 0; // our parameter location
+
+    bool success = true;
     while(!fin.atEnd())
     {
         inputLine = fin.readLine();
-        if(inputLine.length() != 0 && (inputLine[0] == 'x' || inputLine[0] == '#'))
+        if(inputLine.length() != 0 && (inputLine[0] == 'x'
+                                       || inputLine[0] == '#'))
         {
             continue; // We do not care of comment lines
         }
@@ -140,13 +161,19 @@ void Grid::parseRLE(const QString &fileName)
                         {
                             if(c == '!')
                             {
-                                return;
+                                success = true;
+                                break;
                             }
                             else
                             {
                                 if(c == ' ')
                                 {
                                     continue;
+                                }
+                                else
+                                {
+                                    success = false;
+                                    break;
                                 }
                             }
                         }
@@ -155,9 +182,16 @@ void Grid::parseRLE(const QString &fileName)
             }
         }
     }
-    // move the pattern to the center
-    root = root.get()->getse();
+    // move the pattern to the centre
+    if (!root->getnw()->isAlive() &&
+        !root->getne()->isAlive() &&
+        !root->getsw()->isAlive() &&
+        success)
+    {
+        root = root->getse();
+    }
     file.close();
+    return success;
 }
 
 void Grid::clear()
@@ -166,7 +200,12 @@ void Grid::clear()
     generationCount = 0;
 }
 
-bool Grid::isAlive(int heightIndex, int widthIndex)
+bool Grid::isEmpty() const
+{
+    return root->isAlive();
+}
+
+bool Grid::isAlive(int heightIndex, int widthIndex) const
 {
     return root->getBit(widthIndex, heightIndex) == 1 ? true : false;
 }
@@ -174,7 +213,7 @@ bool Grid::isAlive(int heightIndex, int widthIndex)
 void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 {
     // If an index does not fit into grid
-    while(abs(widthIndex) > getWidth() / 2 || abs(heightIndex) > getHeight() / 2)
+    while(abs(widthIndex) > getWidth() / 2 || abs(heightIndex) > getHeight() /2)
     {
         root = root->expandUniverse();
     }
@@ -188,12 +227,12 @@ void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
     }
 }
 
-int Grid::getWidth()
+int Grid::getWidth() const
 {
     return 1 << root->getLevel();
 }
 
-int Grid::getHeight()
+int Grid::getHeight() const
 {
     return 1 << root->getLevel();
 }
@@ -207,10 +246,26 @@ int Grid::getHeight()
 void Grid::update()
 {
     while(root->getLevel() < 3 ||
-          root->getnw()->getPopulation() != root->getnw()->getse()->getse()->getPopulation() ||
-          root->getne()->getPopulation() != root->getne()->getsw()->getsw()->getPopulation() ||
-          root->getsw()->getPopulation() != root->getsw()->getne()->getne()->getPopulation() ||
-          root->getse()->getPopulation() != root->getse()->getnw()->getnw()->getPopulation())
+          root->getnw()->getPopulation() != root->
+                                            getnw()->
+                                            getse()->
+                                            getse()->
+                                            getPopulation() ||
+          root->getne()->getPopulation() != root->
+                                            getne()->
+                                            getsw()->
+                                            getsw()->
+                                            getPopulation() ||
+          root->getsw()->getPopulation() != root->
+                                            getsw()->
+                                            getne()->
+                                            getne()->
+                                            getPopulation() ||
+          root->getse()->getPopulation() != root->
+                                            getse()->
+                                            getnw()->
+                                            getnw()->
+                                            getPopulation())
     {
         root = root->expandUniverse();
     }
@@ -218,17 +273,17 @@ void Grid::update()
     generationCount++;
 }
 
-void Grid::draw(QPainter* painter, int x0, int y0, float width)
+void Grid::draw(QPainter* painter, int x0, int y0, float width) const
 {
     root->recDraw(painter, x0, y0, width);
 }
 
-int Grid::getGeneration()
+int Grid::getGeneration() const
 {
     return generationCount;
 }
 
-long Grid::getPopulation()
+long Grid::getPopulation() const
 {
     return root->getPopulation();
 }
@@ -241,4 +296,77 @@ void Grid::rotateClockwise()
 void Grid::rotateAntiClockwise()
 {
     root = root->rotateAntiClockwise();
+}
+
+int Grid::leftBoundary() const
+{
+    int lb = root->leftBoundary();
+    return lb != std::numeric_limits<int>::max() ? lb : 0;
+}
+
+int Grid::rightBoundary() const
+{
+    int rb = root->rightBoundary();
+    return rb != std::numeric_limits<int>::min() ? rb : getWidth() - 1;
+}
+
+int Grid::bottomBoundary() const
+{
+    int bb = root->bottomBoundary();
+    return bb != std::numeric_limits<int>::min() ? bb : getWidth() - 1;
+}
+
+int Grid::topBoundary() const
+{
+    int tb = root->topBoundary();
+    return tb != std::numeric_limits<int>::max() ? tb : 0;
+}
+
+void Grid::insertPattern(const Grid& pattern, int xPos, int yPos, bool alive)
+{
+    for (int i = -pattern.getWidth() / 2;
+         i < pattern.getWidth() / 2;
+         i++)
+    {
+        for (int j = -pattern.getWidth() / 2;
+             j < pattern.getWidth() / 2;
+             j++)
+        {
+            if (pattern.isAlive(i, j))
+            {
+                this->setAlive(i + xPos, j + yPos, alive);
+            }
+        }
+    }
+}
+
+QVector<QVector<int> > Grid::as2dArray() const
+{
+    QVector<QVector<int> > result;
+    if (!root->isAlive())
+    {
+        return result;
+    }
+
+    int left = leftBoundary();
+    int right = rightBoundary();
+    int top = topBoundary();
+    int bottom = bottomBoundary();
+    int height = bottom - top + 1;
+    int width = right - left + 1;
+    int gridWidth = getWidth();
+    result.resize(height);
+    for (int i = 0; i < result.size(); ++i)
+    {
+        result[i].resize(width);
+    }
+    for (int i = top; i <= bottom; ++i)
+    {
+        for (int j = left; j <= right; ++j)
+        {
+            result[i - top][j - left] = root->getBit(j - gridWidth / 2,
+                                                     i - gridWidth / 2);
+        }
+    }
+    return result;
 }

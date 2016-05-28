@@ -1,5 +1,6 @@
 /* KPCC
 * TreeNode is a 4-nary tree that represents a celluar automaton
+* File: treenode.h
 * Author: Safin Karim
 * Date: 2015.10.15
 */
@@ -7,6 +8,7 @@
 #ifndef TREENODE_H
 #define TREENODE_H
 
+#include <limits>
 #include <memory>
 #include <unordered_map>
 #include <QPainter>
@@ -38,7 +40,7 @@ public:
              shared_ptr<TreeNode> se);
 
     /**
-     * @brief Sets a certain cell of a tree to 1 ( -level ^ 2 <= x, y < level ^ 2)
+     * @brief Sets a certain cell of a tree to 1 (-level^2 <= x, y < level^2)
      * @param -level ^ 2 <= x < level ^ 2
      * @param -level ^ 2 <= y < level ^ 2
      * @return A TreeNode with a bit set
@@ -46,7 +48,7 @@ public:
     shared_ptr<TreeNode> setBit(int x, int y);
 
     /**
-     * @brief Sets a certain cell of a tree to 0 ( -level ^ 2 <= x, y < level ^ 2)
+     * @brief Sets a certain cell of a tree to 0 (-level^2 <= x, y < level^2)
      * @param -level ^ 2 <= x < level ^ 2
      * @param -level ^ 2 <= y < level ^ 2
      * @return A TreeNode with a bit set
@@ -75,48 +77,6 @@ public:
     shared_ptr<TreeNode> expandUniverse();
 
     /**
-    *   Given an integer with a bitmask indicating which bits are
-    *   set in the neighborhood, calculate whether this cell is
-    *   alive or dead in the next generation.  The bottom three
-    *   bits are the south neighbors; bits 4..6 are the current
-    *   row with bit 5 being the cell itself, and bits 8..10
-    *   are the north neighbors.
-    */
-    shared_ptr<TreeNode> oneGen(int bitmask);
-
-    /**
-    *   At level 2, we can use slow simulation to compute the next
-    *   generation.  We use bitmask tricks.
-    */
-    shared_ptr<TreeNode> slowSimulation();
-
-    /**
-    *   Return a new node one level down containing only the
-    *   center elements.
-    */
-    shared_ptr<TreeNode> centeredSubnode();
-
-    /**
-    *   Return a new node one level down from two given nodes
-    *   that contains the east centered two sub sub nodes from
-    *   the west node and the west centered two sub sub nodes
-    *   from the east node.
-    */
-    shared_ptr<TreeNode> centeredHorizontal(shared_ptr<TreeNode> w, shared_ptr<TreeNode> e);
-
-    /**
-    *   Similar, but this does it north/south instead of east/west.
-    */
-    shared_ptr<TreeNode> centeredVertical(shared_ptr<TreeNode> n, shared_ptr<TreeNode> s);
-
-    /**
-    *   Return a new node two levels down containing only the
-    *   centered elements.
-    */
-    shared_ptr<TreeNode> centeredSubSubnode();
-
-
-    /**
     *   The recursive call that computes the next generation.  It works
     *   by constructing nine subnodes that are each a quarter the size
     *   of the current node in each dimension, and combining these in
@@ -128,6 +88,14 @@ public:
     */
     shared_ptr<TreeNode> nextGeneration();
 
+    /**
+     * @brief Draws this node so that (x0, y0) is in the cenre of it, and the
+     * width of the painted node is equal to width
+     * @param painter - QPainter instance used for painting this node
+     * @param x0 - x coordinate of the centre of the node
+     * @param y0 - y coordinate of the centre of the node
+     * @param width - width of the painted node
+     */
     void recDraw(QPainter* painter, int x0, int y0, int width);
 
     /**
@@ -183,13 +151,92 @@ public:
      */
     bool isAlive() const;
 
+    /**
+     * @brief Calculates the most left cell of the tree
+     * @return zero if the cell is in the first column;
+     * level - 1 if in the last;
+     * 2-(level - 2) if in between;
+     * std::numeric_limits<int>::max() if there are no cells
+     */
+    int leftBoundary() const;
+
+    /**
+     * @brief Calculates the most right cell of the tree
+     * @return zero if the cell is in the first column;
+     * level - 1 if in the last;
+     * 2-(level - 2) if in between;
+     * std::numeric_limits<int>::min() if there are no cells
+     */
+    int rightBoundary() const;
+
+    /**
+     * @brief Calculates the most top cell of the tree
+     * @return zero if the cell is in the first row;
+     * level - 1 if in the last;
+     * 2-(level - 2) if in between;
+     * std::numeric_limits<int>::max() if there are no cells
+     */
+    int topBoundary() const;
+
+    /**
+     * @brief Calculates the most bottom cell of the tree
+     * @return zero if the cell is in the first row;
+     * level - 1 if in the last;
+     * 2-(level - 2) if in between;
+     * std::numeric_limits<int>::min() if there are no cells
+     */
+    int bottomBoundary() const;
+
 private:
 
-    shared_ptr<TreeNode> nw, ne, sw, se; //children
-    int level; //distance to the root
     long population; //number of living cells
     bool alive; //if this is a leaf node, is it alive?
                 //if nonleaf, does it have any living cells?
+    int level; //distance to the root
+    shared_ptr<TreeNode> nw, ne, sw, se; //children
+
+    /**
+    *   Given an integer with a bitmask indicating which bits are
+    *   set in the neighborhood, calculate whether this cell is
+    *   alive or dead in the next generation.  The bottom three
+    *   bits are the south neighbors; bits 4..6 are the current
+    *   row with bit 5 being the cell itself, and bits 8..10
+    *   are the north neighbors.
+    */
+    shared_ptr<TreeNode> oneGen(int bitmask);
+
+    /**
+    *   At level 2, we can use slow simulation to compute the next
+    *   generation.  We use bitmask tricks.
+    */
+    shared_ptr<TreeNode> slowSimulation();
+
+    /**
+    *   Return a new node one level down containing only the
+    *   center elements.
+    */
+    shared_ptr<TreeNode> centeredSubnode();
+
+    /**
+    *   Return a new node one level down from two given nodes
+    *   that contains the east centered two sub sub nodes from
+    *   the west node and the west centered two sub sub nodes
+    *   from the east node.
+    */
+    shared_ptr<TreeNode> centeredHorizontal(shared_ptr<TreeNode> w,
+                                            shared_ptr<TreeNode> e);
+
+    /**
+    *   Similar, but this does it north/south instead of east/west.
+    */
+    shared_ptr<TreeNode> centeredVertical(shared_ptr<TreeNode> n,
+                                          shared_ptr<TreeNode> s);
+
+    /**
+    *   Return a new node two levels down containing only the
+    *   centered elements.
+    */
+    shared_ptr<TreeNode> centeredSubSubnode();
 };
 
 
@@ -200,6 +247,9 @@ size_t hash_func(shared_ptr<TreeNode> t);
 bool equals(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 
 //stores nextGeneration values
-static unordered_map<shared_ptr<TreeNode>, shared_ptr<TreeNode>, decltype(&hash_func), decltype(&equals)> hashMap(100, hash_func, equals);
+static unordered_map<shared_ptr<TreeNode>,
+                     shared_ptr<TreeNode>,
+                     decltype(&hash_func),
+                     decltype(&equals)> hashMap(100, hash_func, equals);
 
 #endif // TREENODE_H

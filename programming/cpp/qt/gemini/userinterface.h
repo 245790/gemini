@@ -39,9 +39,12 @@ private slots:
     void setGridColor();
     void chooseWhiteTheme();
     void chooseBlackTheme();
+    void fitPattern();
     void setUpdateRate();
     void openRleFile();
     void openPlainTextFile();
+    void saveAsRleFile();
+    void saveAsPlainTextFile();
     void initRandom();
     void changeMode(const QModelIndex & index);
     void stopButtonPressed();
@@ -64,20 +67,25 @@ private:
     QAction *setCellColorAct;
     QAction *setSpaceColorAct;
     QAction *setGridColorAct;
-    QAction *setUpdateRateAct;
     QAction *chooseWhiteThemeAct;
     QAction *chooseBlackThemeAct;
+    QAction *fitPatternAct;
+    QAction *setUpdateRateAct;
     QAction *initRandomAct;
     QAction *openRleFileAct;
     QAction *openPlainTextFileAct;
+    QAction *saveAsRleFileAct;
+    QAction *saveAsPlainTextFileAct;
     QAction *rotateClockwiseAct;
     QAction *rotateAntiClockwiseAct;
-    QTimer *timer; // Calls gridPainter::animate() and userInterface::updatePropertiesWindow() repeatedly
+    QTimer *timer; // Calls gridPainter::animate() and
+                   // userInterface::updatePropertiesWindow() repeatedly
     QVBoxLayout *layout; // contains mainLayout and painterAndMode
     QHBoxLayout *mainLayout; // contains buttons at the bottom
     QTreeView *mode; // specifies a drawing/erasing pattern and mode
     QHBoxLayout *painterAndMode; // contains gridPainter and mode
-    PropertiesWindow *propertiesWindow; // Shows various information about automata
+    PropertiesWindow *propertiesWindow; // Shows various information about
+                                        // the automata
 
     int drawingIndex; // index of "drawing" in treeView
     int erasingIndex; // index of "erasing" in treeView

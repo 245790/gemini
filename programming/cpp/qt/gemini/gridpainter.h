@@ -35,7 +35,7 @@ private:
     QVector<Grid> painting;   // patterns that we paint with
     int currentPaintingIndex; // exact pattern used for drawing
     QVector<Grid> erasing;    // patterns that we erase with
-    int currentErasingIndex;  // exact pattern used for drawing
+    int currentErasingIndex;  // exact pattern used for erasing
 
     bool stopped;             // true if the field is updating continuously
     
@@ -47,27 +47,28 @@ private:
 
     QPen gridPen;             // pen for drawing grid (has gridColor)
 
-    double mouseScrollSensitivity; // field increases in size (mouseScrollSensitivity) times after each scroll
+    // field increases in size (mouseScrollSensitivity) times after each scroll
+    double mouseScrollSensitivity;
 
+    // The entire field is being drawn between this two points
     QPoint topLeftDrawingPosition;
     QPoint bottomRightDrawingPosition;
-    // The entire field is being drawn between this two points
 
-    // Does its best to fit the entire field in the screen
-    void autoFitDrawingPoints();
-
-    // If the grid chaged its size after updating, then two drawing points
-    // change their positions so that the cell remains the same size
-    void preventResizing(int prevGridWidth, int currentGridWidth, int prevFieldWidth);
-
-    QPoint mousePosition; // position of a mouse; we need to store it to draw/move
-
-    bool mousePressed;
+    // position of a mouse; we need to store it to draw/move
+    QPoint mousePosition;
 
     MOUSE_MODE mode; // how we process mouse events
 
+    // If the grid chaged its size after updating, then two drawing points
+    // change their positions so that the cell remains the same size and the
+    // same position
+    void preventResizing(int prevGridWidth,
+                         int currentGridWidth,
+                         int prevFieldWidth);
+
 public:
     GridPainter(QWidget *parent);
+
     void setCellColor(QColor cc);
     void setSpaceColor(QColor sc);
     void setGridColor(QColor gc);
@@ -75,18 +76,36 @@ public:
     int getGenerationCount();
     long getPopulation();
 
-    // creates a square grid, whose side is bigger that width and height
+    // creates a square grid, whose side  = (width > height) ? width : height
     void initEmptyGrid(int width, int height);
 
-    void parsePlainText(const QString &fileName);
-    void parseRLE(const QString &fileName);
-    void setMouseMode(MOUSE_MODE m);
+    // fills a rectangle (width, height) with random cells
     void initRandom(int width, int height);
+
+    // Does its best to fit the entire field in the screen. If the field cannot
+    // fit entirely into the screen, even when the size of a cell is 1, then
+    // left-top part will be in the screen
+    void autoFitDrawingPoints();
+
+    // Reads file "fileName", clears all the cells, and fills them according to
+    // the contents of that file
+    bool parsePlainText(const QString &fileName);
+    bool parseRLE(const QString &fileName);
+
+    // Writes current field into file "fileName"
+    void saveAsPlainText(const QString &fileName);
+    void saveAsRLE(const QString &fileName);
+
+    void setMouseMode(MOUSE_MODE m);
+
+    // false if cells are continually updating; false otherwise
     bool isStopped();
 
-    // These two parse text files and put that in corresponding Grids
-    void setDrawingPattern(int index, const QString& fileName);
-    void setErasingPattern(int index, const QString& fileName);
+    // These two parse text files and put that in corresponding Grids at given
+    // index
+    bool setDrawingPattern(int index, const QString& fileName);
+    bool setErasingPattern(int index, const QString& fileName);
+
     // sets a pattern, no matter the mode. Used by UserInterface::keyPressEvent
     void setCurrentPattern(int index);
     void setCurrentDrawingPattern(int index);
@@ -107,7 +126,8 @@ protected:
 #endif
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
+    void hoverMove(QHoverEvent *event);
+    bool event(QEvent *event);
 };
 
 #endif // GRIDPAINTER
