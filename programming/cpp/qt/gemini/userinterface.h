@@ -1,6 +1,7 @@
 /* KPCC
  * Graphical user interface
- * Author: Alexandra Balyuk
+ * File: userinterface.h
+ * Author: Safin Karim, Alexandra Balyuk
  * Date: 2015.09.05
  */
 

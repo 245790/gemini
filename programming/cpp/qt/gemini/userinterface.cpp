@@ -1,6 +1,6 @@
 /* KPCC
  * Graphical user interface
- * Author: Alexandra Balyuk
+ * Author: Safin Karim, Alexandra Balyuk
  * Date: 2015.09.05
  */
 
@@ -71,7 +71,6 @@ UserInterface::UserInterface()
     timer->start(100);
 }
 
-
 void UserInterface::createActions()
 {
     openRleFileAct = new QAction(tr("&Open rle file"), this);
@@ -135,7 +134,6 @@ void UserInterface::createActions()
             SLOT(rotateAntiClockwise()));
 }
 
-
 void UserInterface::createMenus()
 {
     menuBar = new QMenuBar();
@@ -170,7 +168,6 @@ void UserInterface::createMenus()
     setMenuBar(menuBar);
 }
 
-
 QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
 {
     QFile file(fileName);
@@ -197,30 +194,30 @@ QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
 
         model->setData(model->index(rowCount, 0), QVariant(line));
 
-        if(line.trimmed().toLower() == "drawing")
+        if (line.trimmed().toLower() == "drawing")
         {
             readDrawing = true;
             UserInterface::drawingIndex = rowCount; // i mean the class variable
         }
 
-        if(line.trimmed().toLower() == "erasing")
+        if (line.trimmed().toLower() == "erasing")
         {
             readErasing = true;
             UserInterface::erasingIndex = rowCount; // i mean the class variable
         }
 
-        if(readDrawing && !readErasing)
+        if (readDrawing && !readErasing)
         {
-            if(paintingIndex >= 0)
+            if (paintingIndex >= 0)
             {
                 gridPainter->setDrawingPattern(paintingIndex, line.trimmed());
             }
             paintingIndex++;
         }
 
-        if(readDrawing && readErasing)
+        if (readDrawing && readErasing)
         {
-            if(erasingIndex >= 0)
+            if (erasingIndex >= 0)
             {
                 gridPainter->setErasingPattern(erasingIndex, line.trimmed());
             }
@@ -234,10 +231,9 @@ QAbstractItemModel *UserInterface::modelFromFile(const QString& fileName)
     return model;
 }
 
-
 void UserInterface::setCellColor()
 {
-    if(!gridPainter->isStopped())
+    if (!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
@@ -247,10 +243,9 @@ void UserInterface::setCellColor()
     gridPainter->update();
 }
 
-
 void UserInterface::setSpaceColor()
 {
-    if(!gridPainter->isStopped())
+    if (!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
@@ -260,10 +255,9 @@ void UserInterface::setSpaceColor()
     gridPainter->update();
 }
 
-
 void UserInterface::setGridColor()
 {
-    if(!gridPainter->isStopped())
+    if (!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
@@ -273,7 +267,6 @@ void UserInterface::setGridColor()
     gridPainter->update();
 }
 
-
 void UserInterface::chooseWhiteTheme()
 {
     gridPainter->setCellColor(QColor(0, 0, 0));
@@ -281,7 +274,6 @@ void UserInterface::chooseWhiteTheme()
     gridPainter->setGridColor(QColor(230, 230, 230));
     gridPainter->update();
 }
-
 
 void UserInterface::chooseBlackTheme()
 {
@@ -291,13 +283,11 @@ void UserInterface::chooseBlackTheme()
     gridPainter->update();
 }
 
-
 void UserInterface::fitPattern()
 {
     gridPainter->autoFitDrawingPoints();
     gridPainter->update();
 }
-
 
 void UserInterface::setUpdateRate()
 {
@@ -310,10 +300,9 @@ void UserInterface::setUpdateRate()
                                           1));
 }
 
-
 void UserInterface::openRleFile()
 {
-    if(!gridPainter->isStopped())
+    if (!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
@@ -344,10 +333,9 @@ void UserInterface::openRleFile()
     gridPainter->update();
 }
 
-
 void UserInterface::openPlainTextFile()
 {
-    if(!gridPainter->isStopped())
+    if (!gridPainter->isStopped())
     {
         stopButtonPressed();
     }
@@ -375,7 +363,6 @@ void UserInterface::openPlainTextFile()
     }
     gridPainter->update();
 }
-
 
 void UserInterface::saveAsRleFile()
 {
@@ -411,29 +398,28 @@ void UserInterface::initRandom()
     gridPainter->update();
 }
 
-
 void UserInterface::changeMode(const QModelIndex &index)
 {
-    if(index.row() == 0) // then the user clicked on MOVING
+    if (index.row() == 0) // then the user clicked on MOVING
     {
         gridPainter->setMouseMode(MOVING);
         return;
     }
-    if(index.row() >= drawingIndex && index.row() < erasingIndex) // then the
+    if (index.row() >= drawingIndex && index.row() < erasingIndex) // then the
                                                    // user clicked on DRAWING
     {
         gridPainter->setMouseMode(DRAWING);
-        if(index.row() != drawingIndex)
+        if (index.row() != drawingIndex)
         {
             gridPainter->setCurrentDrawingPattern(index.row() - drawingIndex
                                                               - 1);
         }
         return;
     }
-    if(index.row() > erasingIndex) // then the user clicked on DRAWING
+    if (index.row() > erasingIndex) // then the user clicked on ERASING
     {
         gridPainter->setMouseMode(ERASING);
-        if(index.row() != erasingIndex)
+        if (index.row() != erasingIndex)
         {
             gridPainter->setCurrentErasingPattern(index.row() - erasingIndex
                                                               - 1);
@@ -442,12 +428,11 @@ void UserInterface::changeMode(const QModelIndex &index)
     }
 }
 
-
 void UserInterface::stopButtonPressed()
 {
     gridPainter->stopPressed();
 
-    if(gridPainter->isStopped())
+    if (gridPainter->isStopped())
     {
         stopButton->setText("Start");
     }
@@ -457,14 +442,12 @@ void UserInterface::stopButtonPressed()
     }
 }
 
-
 void UserInterface::updatePropertiesWindow()
 {
     propertiesWindow->setGeneration(gridPainter->getGenerationCount());
     propertiesWindow->setPopulation(gridPainter->getPopulation());
     propertiesWindow->setHashSize(gridPainter->getHashSize());
 }
-
 
 void UserInterface::keyPressEvent(QKeyEvent * event)
 {
@@ -518,7 +501,6 @@ void UserInterface::keyPressEvent(QKeyEvent * event)
     }
     update();
 }
-
 
 UserInterface::~UserInterface()
 {

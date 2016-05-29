@@ -1,9 +1,9 @@
 /* KPCC
-* TreeNode is a 4-nary tree that represents a celluar automaton
-* File: treenode.h
-* Author: Safin Karim
-* Date: 2015.10.15
-*/
+ * TreeNode is a quadtree that represents a celluar automaton
+ * File: treenode.h
+ * Author: Safin Karim
+ * Date: 2015.10.15
+ */
 
 #ifndef TREENODE_H
 #define TREENODE_H
@@ -254,7 +254,7 @@ private:
 // Hash function for TreeNode
 uint qHash(shared_ptr<TreeNode> t);
 
-// Function that compares two TreeNodes by their content
+// Compares two TreeNodes by their content
 bool operator==(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2);
 
 #endif // TREENODE_H

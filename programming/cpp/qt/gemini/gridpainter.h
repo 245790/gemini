@@ -44,7 +44,7 @@ private:
     QColor spaceColor;        // color of a dead cel;
     QColor gridColor;         // color of a grid
     
-    QBrush cellBrush;         // brush used to paint cells(plain, spaceColor)
+    QBrush cellBrush;         // brush used to paint cells(plain, cellColor)
 
     QPen gridPen;             // pen for drawing grid (has gridColor)
 

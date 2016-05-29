@@ -1,3 +1,8 @@
+/* KPCC
+ * Entry point of the application
+ * File: main.cpp
+ * Date: 2015.09.05
+ */
 #include <QApplication>
 
 #include "userinterface.h"

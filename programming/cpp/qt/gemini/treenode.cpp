@@ -1,9 +1,9 @@
 /* KPCC
-* TreeNode is a quadtree that represents a celluar automaton
-* File: treenode.cpp
-* Author: Safin Karim
-* Date: 2015.10.15
-*/
+ * TreeNode is a quadtree that represents a celluar automaton
+ * File: treenode.cpp
+ * Author: Safin Karim
+ * Date: 2015.10.15
+ */
 
 #include <limits>
 #include <memory>
@@ -16,7 +16,6 @@ using namespace std;
 
 QHash<shared_ptr<TreeNode>, shared_ptr<TreeNode> > TreeNode::hashMap;
 
-
 TreeNode::TreeNode()
 {
     nw = ne = sw = se = nullptr;
@@ -26,7 +25,6 @@ TreeNode::TreeNode()
     hashValue = population;
 }
 
-
 TreeNode::TreeNode(bool living)
 {
     nw = ne = sw = se = nullptr;
@@ -35,7 +33,6 @@ TreeNode::TreeNode(bool living)
     population = alive ? 1 : 0;
     hashValue = population;
 }
-
 
 /**
 * @brief construct a node of four children
@@ -65,7 +62,6 @@ TreeNode::TreeNode(shared_ptr<TreeNode> nw,
                 1007 * se->hashValue;
 }
 
-
 /**
 * @brief Sets a certain cell of a tree to 1 ( -level ^ 2 <= x, y < level ^ 2)
 * @param -level ^ 2 <= x < level ^ 2
@@ -74,7 +70,7 @@ TreeNode::TreeNode(shared_ptr<TreeNode> nw,
 */
 shared_ptr<TreeNode> TreeNode::setBit(int x, int y)
 {
-   if(level == 0)
+   if (level == 0)
    {
        return make_shared<TreeNode>(true);
    }
@@ -118,7 +114,6 @@ shared_ptr<TreeNode> TreeNode::setBit(int x, int y)
    }
 }
 
-
 /**
 * @brief Sets a certain cell of a tree to 0 ( -level ^ 2 <= x, y < level ^ 2)
 * @param -level ^ 2 <= x < level ^ 2
@@ -127,7 +122,7 @@ shared_ptr<TreeNode> TreeNode::setBit(int x, int y)
 */
 shared_ptr<TreeNode> TreeNode::unsetBit(int x, int y)
 {
-   if(level == 0)
+   if (level == 0)
    {
        return make_shared<TreeNode>(false);
    }
@@ -171,7 +166,6 @@ shared_ptr<TreeNode> TreeNode::unsetBit(int x, int y)
    }
 }
 
-
 /**
 * @brief If a certain bit is alive
 * @param -level ^ 2 <= x < level ^ 2
@@ -210,7 +204,6 @@ int TreeNode::getBit(int x, int y)
    }
 }
 
-
 /**
 * @brief Builds an empty tree of a certain level
 * @param level
@@ -218,14 +211,13 @@ int TreeNode::getBit(int x, int y)
 */
 shared_ptr<TreeNode> TreeNode::emptyTree(int level)
 {
-   if(level == 0)
+   if (level == 0)
    {
        return make_shared<TreeNode>(false);
    }
    shared_ptr<TreeNode> n = emptyTree(level - 1);
    return make_shared<TreeNode>(n, n, n, n);
 }
-
 
 /**
 * @brief Builds a tree one level higher than this with this in the center
@@ -243,7 +235,6 @@ shared_ptr<TreeNode> TreeNode::expandUniverse()
                                 make_shared<TreeNode>(se,     border,
                                                       border, border));
 }
-
 
 /**
 *   Given an integer with a bitmask indicating which bits are
@@ -277,7 +268,6 @@ shared_ptr<TreeNode> TreeNode::oneGen(int bitmask)
    }
 }
 
-
 /**
 *   At level 2, we can use slow simulation to compute the next
 *   generation.  We use bitmask tricks.
@@ -296,7 +286,6 @@ shared_ptr<TreeNode> TreeNode::slowSimulation()
                                 oneGen(allbits >> 1), oneGen(allbits));
 }
 
-
 /**
 *   Return a new node one level down containing only the
 *   center elements.
@@ -305,7 +294,6 @@ shared_ptr<TreeNode> TreeNode::centeredSubnode()
 {
    return make_shared<TreeNode>(nw->se, ne->sw, sw->ne, se->nw);
 }
-
 
 /**
 *   Return a new node one level down from two given nodes
@@ -319,7 +307,6 @@ shared_ptr<TreeNode> TreeNode::centeredHorizontal(shared_ptr<TreeNode> w,
    return make_shared<TreeNode>(w->ne->se, e->nw->sw, w->se->ne, e->sw->nw);
 }
 
-
 /**
 *   Similar, but this does it north/south instead of east/west.
 */
@@ -330,7 +317,6 @@ shared_ptr<TreeNode> TreeNode::centeredVertical(shared_ptr<TreeNode> n,
                                 s->nw->ne, s->ne->nw);
 }
 
-
 /**
 *   Return a new node two levels down containing only the
 *   centered elements.
@@ -340,7 +326,6 @@ shared_ptr<TreeNode> TreeNode::centeredSubSubnode()
    return make_shared<TreeNode>(nw->se->se, ne->sw->sw,
                                 sw->ne->ne, se->nw->nw);
 }
-
 
 /**
 *   The recursive call that computes the next generation.  It works
@@ -354,15 +339,6 @@ shared_ptr<TreeNode> TreeNode::centeredSubSubnode()
 */
 shared_ptr<TreeNode> TreeNode::nextGeneration()
 {
-
-   // Look there
-   // Comment out for printing
-   /*try
-   {
-       return hashMap.at(make_shared<TreeNode>(this));
-   }
-   catch(const out_of_range& oor)
-   {*/
    shared_ptr<TreeNode> result = hashMap.value(shared_from_this(),
                                                nullptr);
    if (result != nullptr)
@@ -395,36 +371,34 @@ shared_ptr<TreeNode> TreeNode::nextGeneration()
                   make_shared<TreeNode>(n10, n11, n20, n21)->nextGeneration(),
                   make_shared<TreeNode>(n11, n12, n21, n22)->nextGeneration());
    }
-   /*}*/
 }
-
 
 void TreeNode::recDraw(QPainter* painter, int x0, int y0, int width)
 {
-   if(this->level == 1)
+   if (this->level == 1)
    {
-       if(nw->population != 0)
+       if (nw->population != 0)
        {
            painter->drawRect(x0 - width / 2,
                              y0 - width / 2,
                              width / 2,
                              width / 2);
        }
-       if(ne->population != 0)
+       if (ne->population != 0)
        {
            painter->drawRect(x0,
                              y0 - width / 2,
                              width / 2,
                              width / 2);
        }
-       if(sw->population != 0)
+       if (sw->population != 0)
        {
            painter->drawRect(x0 - width / 2,
                              y0,
                              width / 2,
                              width / 2);
        }
-       if(se->population != 0)
+       if (se->population != 0)
        {
            painter->drawRect(x0,
                              y0,
@@ -434,25 +408,24 @@ void TreeNode::recDraw(QPainter* painter, int x0, int y0, int width)
    }
    else
    {
-       if(nw->population != 0)
+       if (nw->population != 0)
        {
            nw->recDraw(painter, x0 - width / 4, y0 - width / 4, width / 2);
        }
-       if(ne->population != 0)
+       if (ne->population != 0)
        {
            ne->recDraw(painter, x0 + width / 4, y0 - width / 4, width / 2);
        }
-       if(sw->population != 0)
+       if (sw->population != 0)
        {
            sw->recDraw(painter, x0 - width / 4, y0 + width / 4, width / 2);
        }
-       if(se->population != 0)
+       if (se->population != 0)
        {
            se->recDraw(painter, x0 + width / 4, y0 + width / 4, width / 2);
        }
    }
 }
-
 
 /**
 * @brief Rotates a TreeNode clockwise
@@ -460,12 +433,12 @@ void TreeNode::recDraw(QPainter* painter, int x0, int y0, int width)
 */
 shared_ptr<TreeNode> TreeNode::rotateClockwise()
 {
-   if(this->level == 0) // a leaf node
+   if (this->level == 0) // a leaf node
    {
        return shared_from_this(); // Then a rotation has no effect. We
                                            // do not rotate leaf nodes
    }
-   if(this->level == 1)
+   if (this->level == 1)
    {
        return make_shared<TreeNode>(sw, nw, se, ne);
    }
@@ -478,19 +451,18 @@ shared_ptr<TreeNode> TreeNode::rotateClockwise()
    }
 }
 
-
 /**
 * @brief Rotates a TreeNode anticlockwise
 * @return this, rotated anticlockwise
 */
 shared_ptr<TreeNode> TreeNode::rotateAntiClockwise()
 {
-   if(this->level == 0) // a leaf node
+   if (this->level == 0) // a leaf node
    {
        return shared_from_this(); // Then a rotation has no effect. We
                                            // do not rotate leaf nodes
    }
-   if(this->level == 1)
+   if (this->level == 1)
    {
        return make_shared<TreeNode>(ne, se, nw, sw);
    }
@@ -503,7 +475,6 @@ shared_ptr<TreeNode> TreeNode::rotateAntiClockwise()
    }
 }
 
-
 /**
 * @brief Returns northwestern square of this tree
 * @return
@@ -512,7 +483,6 @@ shared_ptr<TreeNode> TreeNode::getnw() const
 {
    return nw;
 }
-
 
 /**
 * @brief Returns northeastern square of this tree
@@ -523,7 +493,6 @@ shared_ptr<TreeNode> TreeNode::getne() const
    return ne;
 }
 
-
 /**
 * @brief Returns southwestern square of this tree
 * @return
@@ -533,7 +502,6 @@ shared_ptr<TreeNode> TreeNode::getsw() const
    return sw;
 }
 
-
 /**
 * @brief Returns southeastern square of this tree
 * @return
@@ -542,7 +510,6 @@ shared_ptr<TreeNode> TreeNode::getse() const
 {
    return se;
 }
-
 
 /**
 * @brief Returns levelof this tree
@@ -562,7 +529,6 @@ long TreeNode::getPopulation() const
    return population;
 }
 
-
 /**
 * @brief If this node is a leaf, is it alive?
 * If it is nonleaf, has it any living cells?
@@ -573,7 +539,6 @@ bool TreeNode::isAlive() const
    return alive;
 }
 
-
 /**
 * @brief Calculates the most left cell of the tree
 * @return zero if the cell is in the first column;
@@ -582,17 +547,17 @@ bool TreeNode::isAlive() const
 */
 int TreeNode::leftBoundary() const
 {
-   if(!this->alive)
+   if (!this->alive)
    {
        return numeric_limits<int>::max();
    }
-   if(level == 0)
+   if (level == 0)
    {
        return 0;
    }
    else
    {
-       if(nw->alive || sw->alive)
+       if (nw->alive || sw->alive)
        {
            return min(nw->leftBoundary(), sw->leftBoundary());
        }
@@ -606,7 +571,6 @@ int TreeNode::leftBoundary() const
    }
 }
 
-
 /**
 * @brief Calculates the most right cell of the tree
 * @return zero if the cell is in the first column;
@@ -616,17 +580,17 @@ int TreeNode::leftBoundary() const
 */
 int TreeNode::rightBoundary() const
 {
-   if(!this->alive)
+   if (!this->alive)
    {
        return numeric_limits<int>::min();
    }
-   if(level == 0)
+   if (level == 0)
    {
        return 0;
    }
    else
    {
-       if(ne->alive || se->alive)
+       if (ne->alive || se->alive)
        {
            // 1 << (level - 1) = pow(2, level - 1)
            return (1 << (level - 1)) +
@@ -640,7 +604,6 @@ int TreeNode::rightBoundary() const
    }
 }
 
-
 /**
 * @brief Calculates the most top cell of the tree
 * @return zero if the cell is in the first row;
@@ -650,17 +613,17 @@ int TreeNode::rightBoundary() const
 */
 int TreeNode::topBoundary() const
 {
-   if(!this->alive)
+   if (!this->alive)
    {
        return numeric_limits<int>::max();
    }
-   if(level == 0)
+   if (level == 0)
    {
        return 0;
    }
    else
    {
-       if(nw->alive || ne->alive)
+       if (nw->alive || ne->alive)
        {
            return min(nw->topBoundary(), ne->topBoundary());
        }
@@ -674,7 +637,6 @@ int TreeNode::topBoundary() const
    }
 }
 
-
 /**
 * @brief Calculates the most bottom cell of the tree
 * @return zero if the cell is in the first row;
@@ -684,17 +646,17 @@ int TreeNode::topBoundary() const
 */
 int TreeNode::bottomBoundary() const
 {
-   if(!this->alive)
+   if (!this->alive)
    {
        return numeric_limits<int>::min();
    }
-   if(level == 0)
+   if (level == 0)
    {
        return 0;
    }
    else
    {
-       if(sw->alive || se->alive)
+       if (sw->alive || se->alive)
        {
            // 1 << (level - 1) = pow(2, level - 1)
            return (1 << (level - 1)) +
@@ -708,7 +670,6 @@ int TreeNode::bottomBoundary() const
    }
 }
 
-
 uint TreeNode::hash() const
 {
     return hashValue;
@@ -719,20 +680,18 @@ int TreeNode::hashSize()
     return hashMap.size();
 }
 
-
 uint qHash(shared_ptr<TreeNode> t)
 {
    return t->hash();
 }
 
-
 bool operator==(shared_ptr<TreeNode> arg1, shared_ptr<TreeNode> arg2)
 {
-   if(arg1->getLevel() != arg2->getLevel())
+   if (arg1->getLevel() != arg2->getLevel())
    {
        return false;
    }
-   if(arg1->getLevel() == 0)
+   if (arg1->getLevel() == 0)
    {
        return arg1->isAlive() == arg2->isAlive();
    }

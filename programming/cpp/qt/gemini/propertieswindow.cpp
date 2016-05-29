@@ -1,5 +1,6 @@
 /* KPCC
- * Widnow with various information about the field, e. g. number of living cells, population etc.
+ * Widnow with various information about the field, e. g. number of living
+ * cells, population etc.
  * Author: Safin Karim
  * Date: 2016.02.17
  */
@@ -9,16 +10,16 @@
 PropertiesWindow::PropertiesWindow(QWidget *parent)
     : QWidget(parent)
 {
-    generation = new QLabel(tr("Generation 0"));
+    generationLabel= new QLabel(tr("Generation 0"));
 
-    population = new QLabel(tr("Population: "));
+    populationLabel = new QLabel(tr("Population: "));
 
-    hashSize = new QLabel(tr("Items in hash: "));
+    hashSizeLabel = new QLabel(tr("Items in hash: "));
 
     mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(generation);
-    mainLayout->addWidget(population);
-    mainLayout->addWidget(hashSize);
+    mainLayout->addWidget(generationLabel);
+    mainLayout->addWidget(populationLabel);
+    mainLayout->addWidget(hashSizeLabel);
 
     setWindowTitle(tr("Properties"));
 
@@ -28,17 +29,17 @@ PropertiesWindow::PropertiesWindow(QWidget *parent)
 
 void PropertiesWindow::setGeneration(int gen)
 {
-    generation->setText(tr("Generation ") + QString::number(gen));
+    generationLabel->setText(tr("Generation ") + QString::number(gen));
 }
 
 void PropertiesWindow::setPopulation(int pop)
 {
-    population->setText(tr("Population: ") + QString::number(pop));
+    populationLabel->setText(tr("Population: ") + QString::number(pop));
 }
 
 void PropertiesWindow::setHashSize(int hs)
 {
-    hashSize->setText(tr("Items in hash: ") + QString::number(hs));
+    hashSizeLabel->setText(tr("Items in hash: ") + QString::number(hs));
 }
 
 PropertiesWindow::~PropertiesWindow()

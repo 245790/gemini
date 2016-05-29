@@ -1,5 +1,5 @@
 /* KPCC
- * Class Grid is an interface for celluar automaton
+ * Class Grid is an interface for cellular automaton
  * File: grid.h
  * Author: Safin Karim
  * Date: 2014.12.04

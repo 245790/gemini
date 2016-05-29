@@ -20,9 +20,9 @@ class PropertiesWindow : public QWidget
     Q_OBJECT
 
 private:
-    QLabel *generation;
-    QLabel *population;
-    QLabel *hashSize;
+    QLabel *generationLabel;
+    QLabel *populationLabel;
+    QLabel *hashSizeLabel;
     QVBoxLayout *mainLayout;
 
 public:

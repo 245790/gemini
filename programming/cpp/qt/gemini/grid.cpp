@@ -1,7 +1,8 @@
 /* KPCC
  * Class Grid is an interface for celluar automaton
+ * File: grid.cpp
  * Author: Safin Karim
- * Date: 2014.12.4
+ * Date: 2014.12.04
  */
 
 #include <fstream>
@@ -27,11 +28,11 @@ void Grid::initEmptyGrid(int width, int height)
 
 void Grid::initRandom(int width, int height)
 {
-    for(int i = - height / 2; i < height / 2; i++)
+    for (int i = - height / 2; i < height / 2; i++)
     {
-        for(int j = - width / 2; j < width / 2; j++)
+        for (int j = - width / 2; j < width / 2; j++)
         {
-            if(qrand() % 2 == 0)
+            if (qrand() % 2 == 0)
             {
                 this->setAlive(i, j, true);
             }
@@ -54,7 +55,7 @@ bool Grid::parsePlainText(const QString &fileName)
     {
         currentString = fin.readLine();
     }
-    while(currentString[0] == '!');
+    while (currentString[0] == '!');
 
     QString lineOfBody = currentString; // that is, the first row of cells
 
@@ -63,11 +64,11 @@ bool Grid::parsePlainText(const QString &fileName)
     body.push_back(lineOfBody);
     int maxWidth = lineOfBody.length(); // width of a pattern
 
-    while(!fin.atEnd())
+    while (!fin.atEnd())
     {
         lineOfBody = fin.readLine();
         body.push_back(lineOfBody);
-        if(maxWidth < lineOfBody.length())
+        if (maxWidth < lineOfBody.length())
         {
             maxWidth = lineOfBody.length();
         }
@@ -90,11 +91,11 @@ bool Grid::parsePlainText(const QString &fileName)
         return false;
     }
 
-    for(int i = 0; i < body.size(); i++)
+    for (int i = 0; i < body.size(); i++)
     {
-        for(int j = 0; j < body[i].length(); j++)
+        for (int j = 0; j < body[i].length(); j++)
         {
-            if(body[i][j] != '.')
+            if (body[i][j] != '.')
             {
                 this->setAlive(i - body.size() / 2, j - maxWidth / 2, true);
             }
@@ -116,28 +117,28 @@ bool Grid::parseRLE(const QString &fileName)
     int paramArgument = 0; // our parameter location
 
     bool success = true;
-    while(!fin.atEnd())
+    while (!fin.atEnd())
     {
         inputLine = fin.readLine();
-        if(inputLine.length() != 0 && (inputLine[0] == 'x'
+        if (inputLine.length() != 0 && (inputLine[0] == 'x'
                                        || inputLine[0] == '#'))
         {
             continue; // We do not care of comment lines
         }
-        for(int i = 0; i < inputLine.length(); i++)
+        for (int i = 0; i < inputLine.length(); i++)
         {
             QChar c = inputLine[i];
             int param = (paramArgument == 0 ? 1 : paramArgument);
-            if(c == 'b')
+            if (c == 'b')
             {
                 x += param;
                 paramArgument = 0;
             }
             else
             {
-                if(c == 'o')
+                if (c == 'o')
                 {
-                    while(param-- > 0)
+                    while (param-- > 0)
                     {
                         this->setAlive(x++, y, true);
                     }
@@ -145,7 +146,7 @@ bool Grid::parseRLE(const QString &fileName)
                 }
                 else
                 {
-                    if(c == '$')
+                    if (c == '$')
                     {
                         y += param;
                         x = 0;
@@ -153,20 +154,20 @@ bool Grid::parseRLE(const QString &fileName)
                     }
                     else
                     {
-                        if('0' <= c && c <= '9')
+                        if ('0' <= c && c <= '9')
                         {
                             paramArgument = 10 * paramArgument + c.digitValue();
                         }
                         else
                         {
-                            if(c == '!')
+                            if (c == '!')
                             {
                                 success = true;
                                 break;
                             }
                             else
                             {
-                                if(c == ' ')
+                                if (c == ' ')
                                 {
                                     continue;
                                 }
@@ -303,11 +304,11 @@ bool Grid::isAlive(int heightIndex, int widthIndex) const
 void Grid::setAlive(int heightIndex, int widthIndex, bool isAlive)
 {
     // If an index does not fit into grid
-    while(abs(widthIndex) > getWidth() / 2 || abs(heightIndex) > getHeight() /2)
+    while (abs(widthIndex) > getWidth() / 2 || abs(heightIndex) > getHeight() /2)
     {
         root = root->expandUniverse();
     }
-    if(isAlive)
+    if (isAlive)
     {
         root = root->setBit(widthIndex, heightIndex);
     }
@@ -335,7 +336,7 @@ int Grid::getHeight() const
 */
 void Grid::update()
 {
-    while(root->getLevel() < 3 ||
+    while (root->getLevel() < 3 ||
           root->getnw()->getPopulation() != root->
                                             getnw()->
                                             getse()->
