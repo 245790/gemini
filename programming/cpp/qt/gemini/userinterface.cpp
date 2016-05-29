@@ -462,6 +462,7 @@ void UserInterface::updatePropertiesWindow()
 {
     propertiesWindow->setGeneration(gridPainter->getGenerationCount());
     propertiesWindow->setPopulation(gridPainter->getPopulation());
+    propertiesWindow->setHashSize(gridPainter->getHashSize());
 }
 
 

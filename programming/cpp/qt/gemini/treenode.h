@@ -194,6 +194,8 @@ public:
      */
     uint hash() const;
 
+    static int hashSize();
+
 private:
 
     bool alive; //if this is a leaf node, is it alive?

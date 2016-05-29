@@ -194,6 +194,96 @@ bool Grid::parseRLE(const QString &fileName)
     return success;
 }
 
+void Grid::saveAsPlainText(const QString &fileName)
+{
+    QVector<QVector<int> > cells = as2dArray();
+    if (cells.size() == 0)
+    {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QFile::ReadWrite | QFile::Truncate | QFile::Text))
+    {
+        return;
+    }
+    QTextStream stream(&file);
+    stream << "!Created in Gemini\n";
+    for (int i = 0; i < cells.size(); ++i)
+    {
+        for (int j = 0; j < cells[i].size(); ++j)
+        {
+            if (cells[i][j] == 0)
+            {
+                stream << ".";
+            }
+            else
+            {
+                stream << "O";
+            }
+        }
+        stream << "\n";
+    }
+}
+
+void Grid::saveAsRLE(const QString &fileName)
+{
+    QVector<QVector<int> > cells = as2dArray();
+    if (cells.size() == 0)
+    {
+        return;
+    }
+    QFile file(fileName);
+    if (!file.open(QFile::ReadWrite | QFile::Truncate | QFile::Text))
+    {
+        return;
+    }
+    QTextStream stream(&file);
+    stream << "#C Created in Gemini\n";
+    int width = cells[0].size();
+    int height = cells.size();
+    stream << "x = " << width << ",y = " << height
+           << "rule = b3/s23\n";
+    int run = 1; // number of identical cells going successively
+    for (int i = 0; i < width; ++i)
+    {
+        run = 1;
+        for (int j = 0; j < height - 1; ++j)
+        {
+            if (cells[j][i] == cells[j + 1][i])
+            {
+                ++run;
+            }
+            else
+            {
+                if (run != 1)
+                {
+                    stream << run;
+                }
+                if (cells[j][i] == 1)
+                {
+                    stream << "o";
+                }
+                else
+                {
+                    stream << "b";
+                }
+                run = 1;
+            }
+        }
+        if (cells[height - 1][i] != 0)
+        {
+            if (run != 1)
+            {
+                stream << run;
+            }
+            stream << "o";
+            // if dead cells are trailing at the end, we don't need to write
+        }
+        stream << "$";
+    }
+    stream << "!";
+}
+
 void Grid::clear()
 {
     root = root->emptyTree(root->getLevel());
@@ -369,4 +459,9 @@ QVector<QVector<int> > Grid::as2dArray() const
         }
     }
     return result;
+}
+
+int Grid::hashSize()
+{
+    return TreeNode::hashSize();
 }

@@ -1,5 +1,6 @@
 /* KPCC
  * GridPainter is a widget able to draw Grids
+ * File: gridpainter.h
  * Author: Safin Karim, Alexandra Balyuk
  * Date: 2015.09.05
  */
@@ -110,6 +111,8 @@ public:
     void setCurrentPattern(int index);
     void setCurrentDrawingPattern(int index);
     void setCurrentErasingPattern(int index);
+
+    int getHashSize();
 
 public slots:
     void animate();

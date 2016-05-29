@@ -714,6 +714,11 @@ uint TreeNode::hash() const
     return hashValue;
 }
 
+int TreeNode::hashSize()
+{
+    return hashMap.size();
+}
+
 
 uint qHash(shared_ptr<TreeNode> t)
 {

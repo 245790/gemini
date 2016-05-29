@@ -2,7 +2,7 @@
  * Class Grid is an interface for celluar automaton
  * File: grid.h
  * Author: Safin Karim
- * Date: 2014.12.4
+ * Date: 2014.12.04
  */
 
 #ifndef GRID_H
@@ -39,6 +39,10 @@ public:
 
     // returns true if parsing is successful; false otherwise
     bool parseRLE(const QString &fileName);
+
+    // Writes current field into file "fileName"
+    void saveAsPlainText(const QString &fileName);
+    void saveAsRLE(const QString &fileName);
 
     // kill all cells without any changes to the size of the grid
     void clear();
@@ -86,6 +90,8 @@ public:
 
     // returns the array representation of this
     QVector<QVector<int> > as2dArray() const;
+
+    int hashSize();
 };
 
 #endif // GRID_H

@@ -20,14 +20,15 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 {
     stopped = true;
 
-    grid.initEmptyGrid(100, 100);
+    grid.initEmptyGrid(1000, 1000);
 
-    topLeftDrawingPosition = QPoint(0, 0);
+    topLeftDrawingPosition = QPoint(-grid.getWidth() * 5,
+                                    -grid.getWidth() * 5);
 
-    // taking grid.getWidth() * 2 ensures that cell size will be more than 1
+    // taking grid.getWidth() * 5 ensures that cell size will be more than 1
     // if the size of a cell is less than one, the program won't work correctly
-    bottomRightDrawingPosition = QPoint(grid.getWidth() * 10,
-                                        grid.getWidth() * 10);
+    bottomRightDrawingPosition = QPoint(grid.getWidth() * 5,
+                                        grid.getWidth() * 5);
 
     cellColor = QColor(0, 0, 0);
     spaceColor = QColor(255, 255, 255);
@@ -53,32 +54,42 @@ GridPainter::GridPainter(QWidget *parent) : QOpenGLWidget(parent)
 
 void GridPainter::autoFitDrawingPoints()
 {
-    topLeftDrawingPosition = QPoint(0, 0);
-    // wholeWidth is such a width of a field that all the cells have whole width
-    int wholeWidth;
-    if (this->width() > this->height())
+    int left = grid.leftBoundary();
+    int right = grid.rightBoundary();
+    int bottom = grid.bottomBoundary();
+    int top = grid.topBoundary();
+    // cellWidth is maximal possible width of a cell so that all the cells fit
+    // into the screen
+    int cellWidth;
+    int width = right - left;
+    int height = bottom - top;
+    if (this->width() / this->height() > width / height)
     {
-        if (grid.getWidth() < this->height())
+        if (width < this->width())
         {
-            wholeWidth = this->height() / grid.getWidth() * grid.getWidth();
+            cellWidth = this->height() / height;
         }
         else
         {
-            wholeWidth = grid.getWidth();
+            cellWidth = 1;
         }
     }
     else
     {
-        if (grid.getWidth() < this->width())
+        if (height < this->height())
         {
-            wholeWidth = this->width() / grid.getWidth() * grid.getWidth();
+            cellWidth = this->width() / width;
         }
         else
         {
-            wholeWidth = grid.getWidth();
+            cellWidth = 1;
         }
     }
-    bottomRightDrawingPosition = QPoint(wholeWidth, wholeWidth);
+    topLeftDrawingPosition = QPoint(-left * cellWidth, -top * cellWidth);
+    int leftCoord = topLeftDrawingPosition.x();
+    int topCoord = topLeftDrawingPosition.y();
+    bottomRightDrawingPosition = QPoint(leftCoord + grid.getWidth() * cellWidth,
+                                        topCoord + grid.getWidth() * cellWidth);
 }
 
 void GridPainter::preventResizing(int prevGridWidth,
@@ -223,92 +234,12 @@ bool GridPainter::parseRLE(const QString &fileName)
 
 void GridPainter::saveAsPlainText(const QString &fileName)
 {
-    QVector<QVector<int> > cells = grid.as2dArray();
-    if (cells.size() == 0)
-    {
-        return;
-    }
-    QFile file(fileName);
-    if (!file.open(QFile::ReadWrite | QFile::Truncate | QFile::Text))
-    {
-        return;
-    }
-    QTextStream stream(&file);
-    stream << "!Created in Gemini\n";
-    for (int i = 0; i < cells.size(); ++i)
-    {
-        for (int j = 0; j < cells[i].size(); ++j)
-        {
-            if (cells[i][j] == 0)
-            {
-                stream << ".";
-            }
-            else
-            {
-                stream << "O";
-            }
-        }
-        stream << "\n";
-    }
+    grid.saveAsPlainText(fileName);
 }
 
 void GridPainter::saveAsRLE(const QString &fileName)
 {
-    QVector<QVector<int> > cells = grid.as2dArray();
-    if (cells.size() == 0)
-    {
-        return;
-    }
-    QFile file(fileName);
-    if (!file.open(QFile::ReadWrite | QFile::Truncate | QFile::Text))
-    {
-        return;
-    }
-    QTextStream stream(&file);
-    stream << "#C Created in Gemini\n";
-    int width = cells[0].size();
-    int height = cells.size();
-    stream << "x = " << width << ",y = " << height
-           << "rule = b3/s23\n";
-    int run = 1; // number of identical cells going successively
-    for (int i = 0; i < width; ++i)
-    {
-        run = 1;
-        for (int j = 0; j < height - 1; ++j)
-        {
-            if (cells[j][i] == cells[j + 1][i])
-            {
-                ++run;
-            }
-            else
-            {
-                if (run != 1)
-                {
-                    stream << run;
-                }
-                if (cells[j][i] == 1)
-                {
-                    stream << "o";
-                }
-                else
-                {
-                    stream << "b";
-                }
-                run = 1;
-            }
-        }
-        if (cells[height - 1][i] != 0)
-        {
-            if (run != 1)
-            {
-                stream << run;
-            }
-            stream << "o";
-            // if dead cells are trailing at the end, we don't need to write
-        }
-        stream << "$";
-    }
-    stream << "!";
+    grid.saveAsRLE(fileName);
 }
 
 void GridPainter::initRandom(int width, int height)
@@ -377,6 +308,11 @@ void GridPainter::setCurrentErasingPattern(int index)
     {
         currentErasingIndex = index;
     }
+}
+
+int GridPainter::getHashSize()
+{
+    return grid.hashSize();
 }
 
 void GridPainter::paintEvent(QPaintEvent *event)
@@ -647,8 +583,8 @@ void GridPainter::mousePressEvent(QMouseEvent *event)
             }
         break;
         }
-        update();
     }
+    update();
 }
 
 void GridPainter::mouseMoveEvent(QMouseEvent *event)

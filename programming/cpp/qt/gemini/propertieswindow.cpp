@@ -13,9 +13,12 @@ PropertiesWindow::PropertiesWindow(QWidget *parent)
 
     population = new QLabel(tr("Population: "));
 
+    hashSize = new QLabel(tr("Items in hash: "));
+
     mainLayout = new QVBoxLayout;
     mainLayout->addWidget(generation);
     mainLayout->addWidget(population);
+    mainLayout->addWidget(hashSize);
 
     setWindowTitle(tr("Properties"));
 
@@ -31,6 +34,11 @@ void PropertiesWindow::setGeneration(int gen)
 void PropertiesWindow::setPopulation(int pop)
 {
     population->setText(tr("Population: ") + QString::number(pop));
+}
+
+void PropertiesWindow::setHashSize(int hs)
+{
+    hashSize->setText(tr("Items in hash: ") + QString::number(hs));
 }
 
 PropertiesWindow::~PropertiesWindow()
